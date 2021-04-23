@@ -3,7 +3,7 @@ package model_test
 import (
 	"testing"
 
-	"github.com/patricksferraz/accounting-services/services/auth/domain/model"
+	"github.com/patricksferraz/accounting-services/service/auth/domain/model"
 	"github.com/stretchr/testify/require"
 	"syreclabs.com/go/faker"
 )

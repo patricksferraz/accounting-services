@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/patricksferraz/accounting-services/services/auth/domain/model"
-	"github.com/patricksferraz/accounting-services/services/auth/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/service/auth/domain/model"
+	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/db"
 )
 
 type AuthRepositoryDb struct {
