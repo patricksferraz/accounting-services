@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package github.com.patricksferraz.accountingServices;
+
+option go_package = "/protofiles;pb";
+
+message RegisterRequest {
+    string time = 1;
+    string description = 2;
+}
+
+message ApproveRequest {
+    string id = 1;
+}
+
+message FindRequest {
+    string id = 1;
+}
+
+message FindAllByEmployeeIDRequest {
+    string employeeId = 1;
+}
+
+message Response {
+    string id = 1;
+    string status = 2;
+    string error = 3;
+}
+
+message TimeRecord {
+    string id = 1;
+    string time = 2;
+    string status = 3;
+    string description = 4;
+    bool regularTime = 5;
+    string employeeId = 6;
+    string approvedBy = 7;
+    string createdAt = 8;
+    string updatedAt = 9;
+}
+
+service TimeRecordService {
+    rpc Register (RegisterRequest) returns (Response);
+    rpc Approve (ApproveRequest) returns (Response);
+    rpc Find (FindRequest) returns (TimeRecord);
+    rpc FindAllByEmployeeID (FindAllByEmployeeIDRequest) returns (stream TimeRecord);
+}
