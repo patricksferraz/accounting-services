@@ -1,0 +1,17 @@
+FROM golang:1.16 AS builder
+
+WORKDIR /go/src
+ENV PATH="/go/bin:${PATH}"
+ENV GO111MODULE=on
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+COPY . .
+
+ARG PROJECT
+RUN go build -o main $PROJECT
+
+FROM scratch AS build
+COPY --from=builder /go/src/main /
+ENTRYPOINT ["./main", "grpc"]
