@@ -5,10 +5,10 @@ import (
 	"log"
 	"net"
 
-	"github.com/patricksferraz/accounting-services/services/auth/application/grpc/pb"
-	"github.com/patricksferraz/accounting-services/services/auth/domain/service"
-	"github.com/patricksferraz/accounting-services/services/auth/infrastructure/db"
-	"github.com/patricksferraz/accounting-services/services/auth/infrastructure/repository"
+	"github.com/patricksferraz/accounting-services/service/auth/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/auth/domain/service"
+	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/repository"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 
-	"github.com/patricksferraz/accounting-services/services/auth/application/grpc/pb"
-	"github.com/patricksferraz/accounting-services/services/auth/domain/service"
+	"github.com/patricksferraz/accounting-services/service/auth/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/auth/domain/service"
 )
 
 type AuthGrpcService struct {
