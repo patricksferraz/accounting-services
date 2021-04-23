@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: time-record-service
+spec:
+  type: ClusterIP
+  selector:
+    app: time-record
+  ports:
+  - port: 50051
+    targetPort: 50051
