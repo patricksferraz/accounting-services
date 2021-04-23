@@ -66,16 +66,14 @@
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
-    </li>
-    <!-- <li><a href="#usage">Usage</a></li> -->
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li>
-      <a href="#contributing">Contributing</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
+    <!-- <li><a href="#usage">Usage</a></li> -->
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
     <!-- <li><a href="#license">License</a></li> -->
     <li><a href="#contact">Contact</a></li>
     <!-- <li><a href="#acknowledgements">Acknowledgements</a></li> -->
@@ -105,7 +103,7 @@ Here's a blank template to get started:
 
 To get a local copy up and running follow these simple steps.
 
-__Prerequisites__:
+### Prerequisites
 
 - Hiring a kubernetes cluster:
   - [AWS](https://aws.amazon.com/pt/eks/?whats-new-cards.sort-by=item.additionalFields.postDateTime&whats-new-cards.sort-order=desc&eks-blogs.sort-by=item.additionalFields.createdDate&eks-blogs.sort-order=desc)
@@ -143,7 +141,7 @@ __Prerequisites__:
 
   `kubectl create secret generic time-record-secret --from-env-file ./credentials`
 
-__Installation__:
+### Installation
 
 - `kubectl apply -f ./k8s`
 
@@ -170,7 +168,7 @@ Any contributions you make are **greatly appreciated**.
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### Prerequisites
+__Prerequisites__:
 
 - Golang
 
@@ -214,7 +212,7 @@ Any contributions you make are **greatly appreciated**.
   AUTH_SERVICE_ADDR=auth-service:50051
   ```
 
-### Installation
+__Installation__:
 
 1. Clone the repo
 
@@ -235,6 +233,65 @@ Any contributions you make are **greatly appreciated**.
    go tool cover -html=cover.out -o cover.html
    ```
 
+__Local kubernetes__:
+
+1. Install [Kind](https://kind.sigs.k8s.io/) or similar
+2. Follow the steps of [Getting Started](#getting-started)
+    - For the local keycloak, run:
+
+      `kubectl create -f https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes-examples/keycloak.yaml`
+
+    - For the local mongodb, do:
+
+      ```sh
+      # create: mongo.yml
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: mongo
+      spec:
+        serviceName: mongo
+        replicas: 1
+        selector:
+          matchLabels:
+            app: mongo
+        template:
+          metadata:
+            labels:
+              app: mongo
+              selector: mongo
+          spec:
+            containers:
+            - name: mongo
+              image: mongo:4.4
+              ports:
+                - containerPort: 27017
+              env:
+                - name: MONGO_INITDB_ROOT_USERNAME
+                  value: admin
+                - name: MONGO_INITDB_ROOT_PASSWORD
+                  value: password
+            nodeSelector:
+              kubernetes.io/hostname: checkpoint-control-plane
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: mongo
+        labels:
+          app: mongo
+      spec:
+        # clusterIP: None
+        selector:
+          app: mongo
+        ports:
+        - port: 27017
+          targetPort: 27017
+      ```
+
+      run:
+
+      `kubectl apply -f mongo.yaml`
 <!-- LICENSE -->
 <!-- ## License -->
 
