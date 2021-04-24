@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: accounting-ingress
+  labels:
+      name: accounting-ingress
+spec:
+  rules:
+  # - host: ""
+  - http:
+      paths:
+
+      - pathType: Prefix
+        path: "/auth"
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 50051
+
+      - pathType: Prefix
+        path: "/time-record"
+        backend:
+          service:
+            name: time-record-service
+            port:
+              number: 50051
