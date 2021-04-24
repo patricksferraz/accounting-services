@@ -272,7 +272,7 @@ __Local kubernetes__:
                 - name: MONGO_INITDB_ROOT_PASSWORD
                   value: password
             nodeSelector:
-              kubernetes.io/hostname: checkpoint-control-plane
+              kubernetes.io/hostname: accounting-control-plane
       ---
       apiVersion: v1
       kind: Service
