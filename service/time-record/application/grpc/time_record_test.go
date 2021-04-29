@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc"
-	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
 	uuid "github.com/satori/go.uuid"
