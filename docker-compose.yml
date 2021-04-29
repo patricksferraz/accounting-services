@@ -5,7 +5,7 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: .docker/Dockerfile
     environment:
       ENV: dev
     ports:
@@ -54,7 +54,7 @@ services:
   time-record-service:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: .docker/Dockerfile
     environment:
       ENV: dev
     ports:

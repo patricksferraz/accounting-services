@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: auth-conf
-data:
-  KEYCLOAK_BASE_PATH: http://keycloak:8080

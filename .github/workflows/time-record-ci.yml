@@ -8,36 +8,18 @@ on:
 
 jobs:
 
-  test:
+  docker:
     strategy:
       matrix:
-        go-version: [1.15.x, 1.16.x]
-        os: [ ubuntu-latest ]
         mongodb-version: [4.4]
+
     services:
       mongodb:
         image: mongo:${{ matrix.mongodb-version }}
         ports:
           - 27017:27017
-    runs-on: ${{ matrix.os }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
 
-    - name: Install Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: ${{ matrix.go-version }}
-
-    - name: Test
-      run: go test ./service/time-record/...
-      env:
-        DB_URI: mongodb://localhost
-        DB_NAME: time_record_service
-
-  build-and-push:
     runs-on: ubuntu-latest
-    needs: [test]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -50,11 +32,13 @@ jobs:
         DOCKER_IMAGE=ghcr.io/patricksferraz/${SERVICE}-service:${BRANCH_NAME}
         TAGS="${DOCKER_IMAGE}-${{ github.sha }},${DOCKER_IMAGE}-latest"
         echo ::set-output name=tags::${TAGS}
-        echo ::set-output name=service::${SERVICE}
+        echo ::set-output name=service::./service/${SERVICE}
 
     - name: Set up Docker Buildx
       id: buildx
       uses: docker/setup-buildx-action@v1
+      # with:
+      #     driver-opts: network=host
 
     - name: Cache Docker layers
       uses: actions/cache@v2
@@ -73,12 +57,13 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Test
+      id: docker_test
       uses: docker/build-push-action@v2
       with:
         builder: ${{ steps.buildx.outputs.name }}
-        file: ./Dockerfile.prod
+        file: .docker/Dockerfile.test
         build-args: >
-          PROJECT=./service/${{ steps.prep.outputs.service }}
+          SERVICE=${{ steps.prep.outputs.service }}
 
     - name: Build and push
       id: docker_build
@@ -86,14 +71,14 @@ jobs:
       if: github.event_name != 'pull_request'
       with:
         builder: ${{ steps.buildx.outputs.name }}
-        file: ./Dockerfile.prod
+        file: .docker/Dockerfile.prod
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.prep.outputs.tags }}
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache
-        target: build
+        target: runtime
         build-args: >
-          PROJECT=./service/${{ steps.prep.outputs.service }}
+          SERVICE=${{ steps.prep.outputs.service }}
 
     - name: Image digest
       if: github.event_name != 'pull_request'
