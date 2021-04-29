@@ -3,6 +3,15 @@
 build: ## Build docker image
 	docker-compose build
 
+gen:
+	protoc \
+	--go_out=service/common/application/grpc/pb \
+	--go_opt=paths=source_relative \
+	--go-grpc_out=service/common/application/grpc/pb \
+	--go-grpc_opt=paths=source_relative \
+	--proto_path=service/common/application/grpc/protofiles \
+	service/common/application/grpc/protofiles/*.proto
+
 .PHONY: status logs start stop clean
 
 status: ## Get status of containers
