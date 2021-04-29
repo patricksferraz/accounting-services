@@ -18,8 +18,8 @@ package cmd
 import (
 	"log"
 
+	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc"
-	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
 	"github.com/spf13/cobra"
 )

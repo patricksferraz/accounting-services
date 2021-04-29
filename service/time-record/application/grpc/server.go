@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/repository"
 	"google.golang.org/grpc"

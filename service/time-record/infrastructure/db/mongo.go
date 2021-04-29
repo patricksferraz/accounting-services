@@ -7,6 +7,7 @@ import (
 	"runtime"
 
 	"github.com/joho/godotenv"
+	"github.com/patricksferraz/accounting-services/utils"
 	mgo "gopkg.in/mgo.v2"
 )
 
@@ -26,11 +27,11 @@ func init() {
 func ConnectMongoDB() (*mgo.Database, error) {
 	var db *mgo.Database
 
-	session, err := mgo.Dial(os.Getenv("DB_URI"))
+	session, err := mgo.Dial(utils.GetEnv("DB_URI", "localhost"))
 	if err != nil {
 		return nil, err
 	}
-	db = session.DB(os.Getenv("DB_NAME"))
+	db = session.DB(utils.GetEnv("DB_NAME", "time_record_service"))
 
 	return db, nil
 }

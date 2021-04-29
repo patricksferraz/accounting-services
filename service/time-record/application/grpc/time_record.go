@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
 )
 

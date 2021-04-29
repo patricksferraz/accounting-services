@@ -1,4 +1,4 @@
-FROM golang:1.16 AS builder
+FROM golang:1.16-alpine AS builder
 
 WORKDIR /go/src
 ENV PATH="/go/bin:${PATH}"
@@ -9,9 +9,9 @@ ENV GOARCH=amd64
 
 COPY . .
 
-ARG PROJECT
-RUN go build -o main $PROJECT
+ARG SERVICE
+RUN go build -o main $SERVICE
 
-FROM scratch AS build
+FROM scratch AS runtime
 COPY --from=builder /go/src/main /
 ENTRYPOINT ["./main", "grpc"]
