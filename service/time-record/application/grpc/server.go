@@ -13,11 +13,9 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-func StartGrpcServer(database *mgo.Database, authdb pb.AuthServiceClient, port int) {
+func StartGrpcServer(database *mgo.Database, _service pb.AuthServiceClient, port int) {
 
-	authRepository := repository.NewAuthRepositoryDb(authdb)
-	authService := service.NewAuthService(authRepository)
-
+	authService := service.NewAuthService(_service)
 	interceptor := NewAuthInterceptor(authService)
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(database)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)

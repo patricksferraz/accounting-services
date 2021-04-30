@@ -17,19 +17,19 @@ import (
 	"syreclabs.com/go/faker"
 )
 
-type mockTimeRecordService_FindAllByEmployeeIDServer struct {
+type mockTimeRecordService_ListTimeRecordsServer struct {
 	gogrpc.ServerStream
 	Results []*pb.TimeRecord
 }
 
-func (_m *mockTimeRecordService_FindAllByEmployeeIDServer) Send(timeRecord *pb.TimeRecord) error {
+func (_m *mockTimeRecordService_ListTimeRecordsServer) Send(timeRecord *pb.TimeRecord) error {
 	_m.Results = append(_m.Results, timeRecord)
 	return nil
 }
 
 type repository struct{}
 
-func (r *repository) Register(timeRecord *model.TimeRecord) error {
+func (r *repository) Register(ctx context.Context, timeRecord *model.TimeRecord) error {
 	// NOTE: Force error
 	if timeRecord.Description == "error" {
 		return errors.New("")
@@ -37,7 +37,7 @@ func (r *repository) Register(timeRecord *model.TimeRecord) error {
 	return nil
 }
 
-func (r *repository) Save(timeRecord *model.TimeRecord) error {
+func (r *repository) Save(ctx context.Context, timeRecord *model.TimeRecord) error {
 	// NOTE: Force error
 	if timeRecord.ID == "c03c4cd4-5211-4209-ac68-17e441152b1d" {
 		return errors.New("")
@@ -45,7 +45,7 @@ func (r *repository) Save(timeRecord *model.TimeRecord) error {
 	return nil
 }
 
-func (r *repository) Find(id string) (*model.TimeRecord, error) {
+func (r *repository) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
 	timeRecord := model.TimeRecord{
 		Time:        time.Now().AddDate(0, 0, -1),
 		Status:      model.Pending,
@@ -61,7 +61,7 @@ func (r *repository) Find(id string) (*model.TimeRecord, error) {
 	return &timeRecord, nil
 }
 
-func (r *repository) FindAllByEmployeeID(employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
+func (r *repository) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
 	var timeRecords []*model.TimeRecord
 	timeRecords = append(
 		timeRecords,
@@ -157,7 +157,7 @@ func TestGrpc_FindAllByEmployeeID(t *testing.T) {
 		EmployeeId: uuid.NewV4().String(),
 	}
 
-	mock := &mockTimeRecordService_FindAllByEmployeeIDServer{}
+	mock := &mockTimeRecordService_ListTimeRecordsServer{}
 	err := timeRecordGrpcService.ListTimeRecords(findAllByEmployeeIDRequest, mock)
 	require.Equal(t, 1, len(mock.Results))
 	require.Nil(t, err)

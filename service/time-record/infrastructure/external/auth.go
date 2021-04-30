@@ -1,4 +1,4 @@
-package db
+package external
 
 import (
 	"log"
@@ -23,7 +23,7 @@ func init() {
 	}
 }
 
-func ConnectAuthDB() (*grpc.ClientConn, error) {
+func ConnectAuthService() (*grpc.ClientConn, error) {
 
 	conn, err := grpc.Dial(os.Getenv("AUTH_SERVICE_ADDR"), grpc.WithInsecure())
 	if err != nil {

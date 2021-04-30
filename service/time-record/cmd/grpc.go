@@ -21,6 +21,7 @@ import (
 	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/external"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +38,7 @@ var grpcCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		conn, err := db.ConnectAuthDB()
+		conn, err := external.ConnectAuthService()
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -15,7 +15,7 @@ type TimeRecordGrpcService struct {
 }
 
 func (t *TimeRecordGrpcService) RegisterTimeRecord(ctx context.Context, in *pb.RegisterTimeRecordRequest) (*pb.TimeRecord, error) {
-	timeRecord, err := t.TimeRecordService.Register(in.Time.AsTime(), in.Description, t.AuthInterceptor.EmployeeClaims.ID)
+	timeRecord, err := t.TimeRecordService.Register(ctx, in.Time.AsTime(), in.Description, t.AuthInterceptor.EmployeeClaims.ID)
 	if err != nil {
 		return &pb.TimeRecord{}, err
 	}
@@ -33,8 +33,8 @@ func (t *TimeRecordGrpcService) RegisterTimeRecord(ctx context.Context, in *pb.R
 	}, nil
 }
 
-func (t *TimeRecordGrpcService) ApproveTimeRecord(ctc context.Context, in *pb.ApproveTimeRecordRequest) (*pb.ApproveTimeRecordResponse, error) {
-	timeRecord, err := t.TimeRecordService.Approve(in.Id, t.AuthInterceptor.EmployeeClaims.ID)
+func (t *TimeRecordGrpcService) ApproveTimeRecord(ctx context.Context, in *pb.ApproveTimeRecordRequest) (*pb.ApproveTimeRecordResponse, error) {
+	timeRecord, err := t.TimeRecordService.Approve(ctx, in.Id, t.AuthInterceptor.EmployeeClaims.ID)
 	if err != nil {
 		return &pb.ApproveTimeRecordResponse{
 			Status: "not updated",
@@ -49,7 +49,7 @@ func (t *TimeRecordGrpcService) ApproveTimeRecord(ctc context.Context, in *pb.Ap
 }
 
 func (t *TimeRecordGrpcService) FindTimeRecord(ctx context.Context, in *pb.FindTimeRecordRequest) (*pb.TimeRecord, error) {
-	timeRecord, err := t.TimeRecordService.Find(in.Id)
+	timeRecord, err := t.TimeRecordService.Find(ctx, in.Id)
 	if err != nil {
 		return &pb.TimeRecord{}, err
 	}
@@ -68,7 +68,7 @@ func (t *TimeRecordGrpcService) FindTimeRecord(ctx context.Context, in *pb.FindT
 }
 
 func (t *TimeRecordGrpcService) ListTimeRecords(in *pb.ListTimeRecordsRequest, stream pb.TimeRecordService_ListTimeRecordsServer) error {
-	timeRecords, err := t.TimeRecordService.FindAllByEmployeeID(in.EmployeeId, in.FromDate.AsTime(), in.ToDate.AsTime())
+	timeRecords, err := t.TimeRecordService.FindAllByEmployeeID(stream.Context(), in.EmployeeId, in.FromDate.AsTime(), in.ToDate.AsTime())
 	if err != nil {
 		return err
 	}
