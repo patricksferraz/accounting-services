@@ -5,16 +5,16 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/patricksferraz/accounting-services/service/auth/domain/model"
-	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/external"
 )
 
-type AuthRepositoryDb struct {
-	Db *db.Keycloak
+type AuthRepository struct {
+	Service *external.Keycloak
 }
 
-func (a *AuthRepositoryDb) Login(ctx context.Context, auth *model.Auth) (*model.JWT, error) {
+func (a *AuthRepository) Login(ctx context.Context, auth *model.Auth) (*model.JWT, error) {
 
-	jwt, err := a.Db.Client.Login(ctx, a.Db.ClientID, a.Db.ClientSecret, a.Db.Realm, auth.Username, auth.Password)
+	jwt, err := a.Service.Client.Login(ctx, a.Service.ClientID, a.Service.ClientSecret, a.Service.Realm, auth.Username, auth.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -32,9 +32,9 @@ func (a *AuthRepositoryDb) Login(ctx context.Context, auth *model.Auth) (*model.
 	}, nil
 }
 
-func (a *AuthRepositoryDb) RefreshToken(ctx context.Context, refreshToken string) (*model.JWT, error) {
+func (a *AuthRepository) RefreshToken(ctx context.Context, refreshToken string) (*model.JWT, error) {
 
-	jwt, err := a.Db.Client.RefreshToken(ctx, refreshToken, a.Db.ClientID, a.Db.ClientSecret, a.Db.Realm)
+	jwt, err := a.Service.Client.RefreshToken(ctx, refreshToken, a.Service.ClientID, a.Service.ClientSecret, a.Service.Realm)
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +52,9 @@ func (a *AuthRepositoryDb) RefreshToken(ctx context.Context, refreshToken string
 	}, nil
 }
 
-func (a *AuthRepositoryDb) FindEmployeeClaimsByToken(ctx context.Context, accessToken string) (*model.EmployeeClaims, error) {
+func (a *AuthRepository) FindEmployeeClaimsByToken(ctx context.Context, accessToken string) (*model.EmployeeClaims, error) {
 
-	jwt, _, err := a.Db.Client.DecodeAccessToken(ctx, accessToken, a.Db.Realm, "account")
+	jwt, _, err := a.Service.Client.DecodeAccessToken(ctx, accessToken, a.Service.Realm, "account")
 	if err != nil {
 		return nil, err
 	}
@@ -73,4 +73,10 @@ func (a *AuthRepositoryDb) FindEmployeeClaimsByToken(ctx context.Context, access
 	employeeClaims.Roles = roles
 
 	return employeeClaims, nil
+}
+
+func NewAuthRepository(service *external.Keycloak) *AuthRepository {
+	return &AuthRepository{
+		Service: service,
+	}
 }

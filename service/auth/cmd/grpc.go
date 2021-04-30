@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"github.com/patricksferraz/accounting-services/service/auth/application/grpc"
-	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/external"
 	"github.com/spf13/cobra"
 )
 
@@ -29,8 +29,8 @@ var grpcCmd = &cobra.Command{
 	Short: "Run gRPC Service",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		database := db.ConnectKeycloak()
-		grpc.StartGrpcServer(database, portNumber)
+		service := external.ConnectKeycloak()
+		grpc.StartGrpcServer(service, portNumber)
 	},
 }
 

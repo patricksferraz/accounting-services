@@ -9,7 +9,7 @@ import (
 
 type AuthGrpcService struct {
 	pb.UnimplementedAuthServiceServer
-	AuthService service.AuthService
+	AuthService *service.AuthService
 }
 
 func (a *AuthGrpcService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.JWT, error) {
@@ -62,7 +62,7 @@ func (a *AuthGrpcService) FindEmployeeClaimsByToken(ctx context.Context, in *pb.
 	}, nil
 }
 
-func NewAuthGrpcService(service service.AuthService) *AuthGrpcService {
+func NewAuthGrpcService(service *service.AuthService) *AuthGrpcService {
 	return &AuthGrpcService{
 		AuthService: service,
 	}
