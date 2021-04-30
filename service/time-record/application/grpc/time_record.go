@@ -15,8 +15,7 @@ type TimeRecordGrpcService struct {
 }
 
 func (t *TimeRecordGrpcService) RegisterTimeRecord(ctx context.Context, in *pb.RegisterTimeRecordRequest) (*pb.TimeRecord, error) {
-	time := in.Time.AsTime()
-	timeRecord, err := t.TimeRecordService.Register(time, in.Description, t.AuthInterceptor.EmployeeClaims.ID)
+	timeRecord, err := t.TimeRecordService.Register(in.Time.AsTime(), in.Description, t.AuthInterceptor.EmployeeClaims.ID)
 	if err != nil {
 		return &pb.TimeRecord{}, err
 	}
