@@ -1,14 +1,15 @@
 package repository
 
 import (
+	"context"
 	"time"
 
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
 )
 
 type TimeRecordRepositoryInterface interface {
-	Register(timeRecord *model.TimeRecord) error
-	Save(timeRecord *model.TimeRecord) error
-	Find(id string) (*model.TimeRecord, error)
-	FindAllByEmployeeID(employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error)
+	Register(ctx context.Context, timeRecord *model.TimeRecord) error
+	Save(ctx context.Context, timeRecord *model.TimeRecord) error
+	Find(ctx context.Context, id string) (*model.TimeRecord, error)
+	FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error)
 }

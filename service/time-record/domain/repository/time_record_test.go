@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"testing"
 
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
@@ -9,19 +10,19 @@ import (
 
 type repository struct{}
 
-func (r *repository) Register(timeRecord *model.TimeRecord) error {
+func (r *repository) Register(ctx context.Context, timeRecord *model.TimeRecord) error {
 	return nil
 }
 
-func (r *repository) Save(timeRecord *model.TimeRecord) error {
+func (r *repository) Save(ctx context.Context, timeRecord *model.TimeRecord) error {
 	return nil
 }
 
-func (r *repository) Find(id string) (*model.TimeRecord, error) {
+func (r *repository) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
 	return &model.TimeRecord{}, nil
 }
 
-func (r *repository) FindAllByEmployeeID(employeeID string) ([]*model.TimeRecord, error) {
+func (r *repository) FindAllByEmployeeID(ctx context.Context, employeeID string) ([]*model.TimeRecord, error) {
 	var timeRecords []*model.TimeRecord
 	return timeRecords, nil
 }
