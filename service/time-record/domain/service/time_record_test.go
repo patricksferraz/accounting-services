@@ -46,7 +46,7 @@ func (r *repository) Find(id string) (*model.TimeRecord, error) {
 	return &timeRecord, nil
 }
 
-func (r *repository) FindAllByEmployeeID(employeeID string) ([]*model.TimeRecord, error) {
+func (r *repository) FindAllByEmployeeID(employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
 	var timeRecords []*model.TimeRecord
 	// NOTE: Force error
 	if employeeID == "" {
@@ -110,10 +110,11 @@ func TestService_Find(t *testing.T) {
 func TestService_FindAllByEmployeeID(t *testing.T) {
 
 	timeRecordService := service.NewTimeRecordService(new(repository))
+	now := time.Now()
 
 	employeeID := uuid.NewV4().String()
-	_, err := timeRecordService.FindAllByEmployeeID(employeeID)
+	_, err := timeRecordService.FindAllByEmployeeID(employeeID, now, now)
 	require.Nil(t, err)
-	_, err = timeRecordService.FindAllByEmployeeID("")
+	_, err = timeRecordService.FindAllByEmployeeID("", now, now)
 	require.NotNil(t, err)
 }

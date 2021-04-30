@@ -15,12 +15,12 @@ func init() {
 
 type TimeRecord struct {
 	Base        `bson:",inline" valid:"-"`
-	Time        time.Time        `bson:"time" valid:"required"`
-	Status      TimeRecordStatus `bson:"status" valid:"timeRecordStatus"`
-	Description string           `bson:"description" valid:"-"`
-	RegularTime bool             `bson:"regular_time" valid:"-"`
-	EmployeeID  string           `bson:"employee_id" valid:"uuid"`
-	ApprovedBy  string           `bson:"approved_by" valid:"-"`
+	Time        time.Time        `json:"time,omitempty" bson:"time" valid:"required"`
+	Status      TimeRecordStatus `json:"status,omitempty" bson:"status" valid:"timeRecordStatus"`
+	Description string           `json:"description,omitempty" bson:"description,omitempty" valid:"-"`
+	RegularTime bool             `json:"regular_time,omitempty" bson:"regular_time" valid:"-"`
+	EmployeeID  string           `json:"employee_id,omitempty" bson:"employee_id" valid:"uuid"`
+	ApprovedBy  string           `json:"approved_by,omitempty" bson:"approved_by,omitempty" valid:"-"`
 }
 
 func (t *TimeRecord) isValid() error {

@@ -2,10 +2,10 @@ package grpc
 
 import (
 	"context"
-	"time"
 
-	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type TimeRecordGrpcService struct {
@@ -14,45 +14,42 @@ type TimeRecordGrpcService struct {
 	AuthInterceptor   *AuthInterceptor
 }
 
-func (t *TimeRecordGrpcService) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Response, error) {
-	_time, err := time.Parse(time.RFC3339, in.Time)
+func (t *TimeRecordGrpcService) RegisterTimeRecord(ctx context.Context, in *pb.RegisterTimeRecordRequest) (*pb.TimeRecord, error) {
+	time := in.Time.AsTime()
+	timeRecord, err := t.TimeRecordService.Register(time, in.Description, t.AuthInterceptor.EmployeeClaims.ID)
 	if err != nil {
-		return &pb.Response{
-			Status: "not created",
-			Error:  err.Error(),
-		}, err
+		return &pb.TimeRecord{}, err
 	}
 
-	timeRecord, err := t.TimeRecordService.Register(_time, in.Description, t.AuthInterceptor.EmployeeClaims.ID)
-	if err != nil {
-		return &pb.Response{
-			Status: "not created",
-			Error:  err.Error(),
-		}, err
-	}
-
-	return &pb.Response{
-		Id:     timeRecord.ID,
-		Status: "created",
+	return &pb.TimeRecord{
+		Id:          timeRecord.ID,
+		Time:        timestamppb.New(timeRecord.Time),
+		Status:      pb.TimeRecord_Status(timeRecord.Status),
+		Description: timeRecord.Description,
+		RegularTime: timeRecord.RegularTime,
+		EmployeeId:  timeRecord.EmployeeID,
+		ApprovedBy:  timeRecord.ApprovedBy,
+		CreatedAt:   timestamppb.New(timeRecord.CreatedAt),
+		UpdatedAt:   timestamppb.New(timeRecord.UpdatedAt),
 	}, nil
 }
 
-func (t *TimeRecordGrpcService) Approve(ctc context.Context, in *pb.ApproveRequest) (*pb.Response, error) {
+func (t *TimeRecordGrpcService) ApproveTimeRecord(ctc context.Context, in *pb.ApproveTimeRecordRequest) (*pb.ApproveTimeRecordResponse, error) {
 	timeRecord, err := t.TimeRecordService.Approve(in.Id, t.AuthInterceptor.EmployeeClaims.ID)
 	if err != nil {
-		return &pb.Response{
+		return &pb.ApproveTimeRecordResponse{
 			Status: "not updated",
 			Error:  err.Error(),
 		}, err
 	}
 
-	return &pb.Response{
+	return &pb.ApproveTimeRecordResponse{
 		Id:     timeRecord.ID,
 		Status: timeRecord.Status.String(),
 	}, nil
 }
 
-func (t *TimeRecordGrpcService) Find(ctx context.Context, in *pb.FindRequest) (*pb.TimeRecord, error) {
+func (t *TimeRecordGrpcService) FindTimeRecord(ctx context.Context, in *pb.FindTimeRecordRequest) (*pb.TimeRecord, error) {
 	timeRecord, err := t.TimeRecordService.Find(in.Id)
 	if err != nil {
 		return &pb.TimeRecord{}, err
@@ -60,19 +57,19 @@ func (t *TimeRecordGrpcService) Find(ctx context.Context, in *pb.FindRequest) (*
 
 	return &pb.TimeRecord{
 		Id:          timeRecord.ID,
-		Time:        timeRecord.Time.Format(time.RFC3339),
-		Status:      timeRecord.Status.String(),
+		Time:        timestamppb.New(timeRecord.Time),
+		Status:      pb.TimeRecord_Status(timeRecord.Status),
 		Description: timeRecord.Description,
 		RegularTime: timeRecord.RegularTime,
 		EmployeeId:  timeRecord.EmployeeID,
 		ApprovedBy:  timeRecord.ApprovedBy,
-		CreatedAt:   timeRecord.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   timeRecord.UpdatedAt.Format(time.RFC3339),
+		CreatedAt:   timestamppb.New(timeRecord.CreatedAt),
+		UpdatedAt:   timestamppb.New(timeRecord.UpdatedAt),
 	}, nil
 }
 
-func (t *TimeRecordGrpcService) FindAllByEmployeeID(in *pb.FindAllByEmployeeIDRequest, stream pb.TimeRecordService_FindAllByEmployeeIDServer) error {
-	timeRecords, err := t.TimeRecordService.FindAllByEmployeeID(in.EmployeeId)
+func (t *TimeRecordGrpcService) ListTimeRecords(in *pb.ListTimeRecordsRequest, stream pb.TimeRecordService_ListTimeRecordsServer) error {
+	timeRecords, err := t.TimeRecordService.FindAllByEmployeeID(in.EmployeeId, in.FromDate.AsTime(), in.ToDate.AsTime())
 	if err != nil {
 		return err
 	}
@@ -80,14 +77,14 @@ func (t *TimeRecordGrpcService) FindAllByEmployeeID(in *pb.FindAllByEmployeeIDRe
 	for _, timeRecord := range timeRecords {
 		stream.Send(&pb.TimeRecord{
 			Id:          timeRecord.ID,
-			Time:        timeRecord.Time.Format(time.RFC3339),
-			Status:      timeRecord.Status.String(),
+			Time:        timestamppb.New(timeRecord.Time),
+			Status:      pb.TimeRecord_Status(timeRecord.Status),
 			Description: timeRecord.Description,
 			RegularTime: timeRecord.RegularTime,
 			EmployeeId:  timeRecord.EmployeeID,
 			ApprovedBy:  timeRecord.ApprovedBy,
-			CreatedAt:   timeRecord.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:   timeRecord.UpdatedAt.Format(time.RFC3339),
+			CreatedAt:   timestamppb.New(timeRecord.CreatedAt),
+			UpdatedAt:   timestamppb.New(timeRecord.UpdatedAt),
 		})
 	}
 

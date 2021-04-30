@@ -5,12 +5,12 @@ build: ## Build docker image
 
 gen:
 	protoc \
-	--go_out=service/common/application/grpc/pb \
+	--go_out=service/common/pb \
 	--go_opt=paths=source_relative \
-	--go-grpc_out=service/common/application/grpc/pb \
+	--go-grpc_out=service/common/pb \
 	--go-grpc_opt=paths=source_relative \
-	--proto_path=service/common/application/grpc/protofiles \
-	service/common/application/grpc/protofiles/*.proto
+	--proto_path=service/common/protofiles \
+	service/common/protofiles/*.proto
 
 .PHONY: status logs start stop clean
 

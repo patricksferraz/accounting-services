@@ -8,7 +8,7 @@ import (
 	"github.com/patricksferraz/accounting-services/service/auth/domain/service"
 	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/db"
 	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/repository"
-	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

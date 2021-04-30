@@ -6,13 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 	gogrpc "google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"syreclabs.com/go/faker"
 )
 
@@ -60,7 +61,7 @@ func (r *repository) Find(id string) (*model.TimeRecord, error) {
 	return &timeRecord, nil
 }
 
-func (r *repository) FindAllByEmployeeID(employeeID string) ([]*model.TimeRecord, error) {
+func (r *repository) FindAllByEmployeeID(employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
 	var timeRecords []*model.TimeRecord
 	timeRecords = append(
 		timeRecords,
@@ -90,21 +91,17 @@ func TestGrpc_Register(t *testing.T) {
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
 	ctx := new(context.Context)
-	registerRequest := &pb.RegisterRequest{
-		Time:        time.Now().Format(time.RFC3339),
+	registerRequest := &pb.RegisterTimeRecordRequest{
+		Time:        timestamppb.Now(),
 		Description: faker.Lorem().Sentence(10),
 	}
 
-	_, err := timeRecordGrpcService.Register(*ctx, registerRequest)
+	_, err := timeRecordGrpcService.RegisterTimeRecord(*ctx, registerRequest)
 	require.Nil(t, err)
 
-	registerRequest.Time = time.Now().String()
-	_, err = timeRecordGrpcService.Register(*ctx, registerRequest)
-	require.NotNil(t, err)
-
-	registerRequest.Time = time.Now().Format(time.RFC3339)
+	registerRequest.Time = timestamppb.Now()
 	registerRequest.Description = "error"
-	_, err = timeRecordGrpcService.Register(*ctx, registerRequest)
+	_, err = timeRecordGrpcService.RegisterTimeRecord(*ctx, registerRequest)
 	require.NotNil(t, err)
 }
 
@@ -119,15 +116,15 @@ func TestGrpc_Approve(t *testing.T) {
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
 	ctx := new(context.Context)
-	approveRequest := &pb.ApproveRequest{
+	approveRequest := &pb.ApproveTimeRecordRequest{
 		Id: uuid.NewV4().String(),
 	}
 
-	_, err := timeRecordGrpcService.Approve(*ctx, approveRequest)
+	_, err := timeRecordGrpcService.ApproveTimeRecord(*ctx, approveRequest)
 	require.Nil(t, err)
 
 	approveRequest.Id = "c4a80742-5294-4f1e-8ea9-5126c9389d6f"
-	_, err = timeRecordGrpcService.Approve(*ctx, approveRequest)
+	_, err = timeRecordGrpcService.ApproveTimeRecord(*ctx, approveRequest)
 	require.NotNil(t, err)
 }
 
@@ -138,15 +135,15 @@ func TestGrpc_Find(t *testing.T) {
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
 	ctx := new(context.Context)
-	findRequest := &pb.FindRequest{
+	findRequest := &pb.FindTimeRecordRequest{
 		Id: uuid.NewV4().String(),
 	}
 
-	_, err := timeRecordGrpcService.Find(*ctx, findRequest)
+	_, err := timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
 	require.Nil(t, err)
 
 	findRequest.Id = "c4a80742-5294-4f1e-8ea9-5126c9389d6f"
-	_, err = timeRecordGrpcService.Find(*ctx, findRequest)
+	_, err = timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
 	require.NotNil(t, err)
 }
 
@@ -156,16 +153,16 @@ func TestGrpc_FindAllByEmployeeID(t *testing.T) {
 	timeRecordService := service.NewTimeRecordService(new(repository))
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
-	findAllByEmployeeIDRequest := &pb.FindAllByEmployeeIDRequest{
+	findAllByEmployeeIDRequest := &pb.ListTimeRecordsRequest{
 		EmployeeId: uuid.NewV4().String(),
 	}
 
 	mock := &mockTimeRecordService_FindAllByEmployeeIDServer{}
-	err := timeRecordGrpcService.FindAllByEmployeeID(findAllByEmployeeIDRequest, mock)
+	err := timeRecordGrpcService.ListTimeRecords(findAllByEmployeeIDRequest, mock)
 	require.Equal(t, 1, len(mock.Results))
 	require.Nil(t, err)
 
 	findAllByEmployeeIDRequest.EmployeeId = ""
-	err = timeRecordGrpcService.FindAllByEmployeeID(findAllByEmployeeIDRequest, mock)
+	err = timeRecordGrpcService.ListTimeRecords(findAllByEmployeeIDRequest, mock)
 	require.NotNil(t, err)
 }

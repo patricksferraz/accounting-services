@@ -18,9 +18,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*JWTInfo, error)
-	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*JWTInfo, error)
-	FindEmployeeClaimsByToken(ctx context.Context, in *FindEmployeeClaimsByTokenRequest, opts ...grpc.CallOption) (*EmployeeClaimsInfo, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*JWT, error)
+	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*JWT, error)
+	FindEmployeeClaimsByToken(ctx context.Context, in *FindEmployeeClaimsByTokenRequest, opts ...grpc.CallOption) (*EmployeeClaims, error)
 }
 
 type authServiceClient struct {
@@ -31,8 +31,8 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
 }
 
-func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*JWTInfo, error) {
-	out := new(JWTInfo)
+func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*JWT, error) {
+	out := new(JWT)
 	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.AuthService/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -40,8 +40,8 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*JWTInfo, error) {
-	out := new(JWTInfo)
+func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*JWT, error) {
+	out := new(JWT)
 	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.AuthService/RefreshToken", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -49,8 +49,8 @@ func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRe
 	return out, nil
 }
 
-func (c *authServiceClient) FindEmployeeClaimsByToken(ctx context.Context, in *FindEmployeeClaimsByTokenRequest, opts ...grpc.CallOption) (*EmployeeClaimsInfo, error) {
-	out := new(EmployeeClaimsInfo)
+func (c *authServiceClient) FindEmployeeClaimsByToken(ctx context.Context, in *FindEmployeeClaimsByTokenRequest, opts ...grpc.CallOption) (*EmployeeClaims, error) {
+	out := new(EmployeeClaims)
 	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.AuthService/FindEmployeeClaimsByToken", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -62,9 +62,9 @@ func (c *authServiceClient) FindEmployeeClaimsByToken(ctx context.Context, in *F
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility
 type AuthServiceServer interface {
-	Login(context.Context, *LoginRequest) (*JWTInfo, error)
-	RefreshToken(context.Context, *RefreshTokenRequest) (*JWTInfo, error)
-	FindEmployeeClaimsByToken(context.Context, *FindEmployeeClaimsByTokenRequest) (*EmployeeClaimsInfo, error)
+	Login(context.Context, *LoginRequest) (*JWT, error)
+	RefreshToken(context.Context, *RefreshTokenRequest) (*JWT, error)
+	FindEmployeeClaimsByToken(context.Context, *FindEmployeeClaimsByTokenRequest) (*EmployeeClaims, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -72,13 +72,13 @@ type AuthServiceServer interface {
 type UnimplementedAuthServiceServer struct {
 }
 
-func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*JWTInfo, error) {
+func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*JWT, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*JWTInfo, error) {
+func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*JWT, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
-func (UnimplementedAuthServiceServer) FindEmployeeClaimsByToken(context.Context, *FindEmployeeClaimsByTokenRequest) (*EmployeeClaimsInfo, error) {
+func (UnimplementedAuthServiceServer) FindEmployeeClaimsByToken(context.Context, *FindEmployeeClaimsByTokenRequest) (*EmployeeClaims, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindEmployeeClaimsByToken not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}

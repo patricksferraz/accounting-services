@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/Nerzal/gocloak/v8 v8.3.0
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
+	github.com/golang/protobuf v1.4.2
 	github.com/joho/godotenv v1.3.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.1.2

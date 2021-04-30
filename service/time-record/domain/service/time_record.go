@@ -52,8 +52,8 @@ func (p *TimeRecordService) Find(id string) (*model.TimeRecord, error) {
 	return timeRecord, nil
 }
 
-func (p *TimeRecordService) FindAllByEmployeeID(employeeID string) ([]*model.TimeRecord, error) {
-	timeRecords, err := p.TimeRecordRepository.FindAllByEmployeeID(employeeID)
+func (p *TimeRecordService) FindAllByEmployeeID(employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
+	timeRecords, err := p.TimeRecordRepository.FindAllByEmployeeID(employeeID, fromDate, toDate)
 	if err != nil {
 		return nil, err
 	}

@@ -84,7 +84,7 @@ func TestRepository_FindAllByEmployeeID(t *testing.T) {
 
 	repository.Register(timeRecord)
 
-	timeRecordsDb, err := repository.FindAllByEmployeeID(timeRecord.EmployeeID)
+	timeRecordsDb, err := repository.FindAllByEmployeeID(timeRecord.EmployeeID, now, now)
 	require.Nil(t, err)
 	require.Equal(t, timeRecord.ID, timeRecordsDb[0].ID)
 	require.True(t, timeRecord.Time.Equal(timeRecordsDb[0].Time))

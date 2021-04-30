@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -30,9 +32,17 @@ func (t *TimeRecordRepositoryDb) Find(id string) (*model.TimeRecord, error) {
 	return timeRecord, err
 }
 
-func (t *TimeRecordRepositoryDb) FindAllByEmployeeID(employeeID string) ([]*model.TimeRecord, error) {
+func (t *TimeRecordRepositoryDb) FindAllByEmployeeID(employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
 	var timeRecords []*model.TimeRecord
-	err := t.Db.C(TimeRecordCollection).Find(bson.M{"employee_id": employeeID}).Sort("-time").All(&timeRecords)
+	err := t.Db.C(TimeRecordCollection).Find(
+		bson.M{
+			"employee_id": employeeID,
+			"time": bson.M{
+				"$gt": fromDate,
+				"$lt": toDate,
+			},
+		},
+	).Sort("-time").All(&timeRecords)
 	return timeRecords, err
 }
 
