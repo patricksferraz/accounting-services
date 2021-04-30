@@ -39,8 +39,8 @@ func (t *TimeRecordRepositoryDb) FindAllByEmployeeID(ctx context.Context, employ
 		bson.M{
 			"employee_id": employeeID,
 			"time": bson.M{
-				"$gt": fromDate,
-				"$lt": toDate,
+				"$gte": fromDate,
+				"$lte": toDate,
 			},
 		},
 	).Sort("-time").All(&timeRecords)
