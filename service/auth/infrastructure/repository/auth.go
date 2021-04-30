@@ -54,7 +54,7 @@ func (a *AuthRepository) RefreshToken(ctx context.Context, refreshToken string) 
 
 func (a *AuthRepository) FindEmployeeClaimsByToken(ctx context.Context, accessToken string) (*model.EmployeeClaims, error) {
 
-	jwt, _, err := a.Service.Client.DecodeAccessToken(ctx, accessToken, a.Service.Realm, "account")
+	jwt, _, err := a.Service.Client.DecodeAccessToken(ctx, accessToken, a.Service.Realm, a.Service.Audience)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (a *AuthRepository) FindEmployeeClaimsByToken(ctx context.Context, accessTo
 	ra := new(ResourceAccess)
 	mapstructure.Decode(jwt.Claims, ra)
 
-	roles := ra.ResourceAccess["checkpoint"]["roles"]
+	roles := ra.ResourceAccess[a.Service.ClientID]["roles"]
 	employeeClaims.Roles = roles
 
 	return employeeClaims, nil
