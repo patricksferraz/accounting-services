@@ -2,7 +2,7 @@ package grpc_test
 
 import (
 	"context"
-	"errors"
+	"log"
 	"testing"
 	"time"
 
@@ -10,75 +10,23 @@ import (
 	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
+	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/repository"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
-	gogrpc "google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"syreclabs.com/go/faker"
 )
 
-type mockTimeRecordService_ListTimeRecordsServer struct {
-	gogrpc.ServerStream
-	Results []*pb.TimeRecord
-}
+// type mockTimeRecordService_ListTimeRecordsServer struct {
+// 	gogrpc.ServerStream
+// 	Results []*pb.TimeRecord
+// }
 
-func (_m *mockTimeRecordService_ListTimeRecordsServer) Send(timeRecord *pb.TimeRecord) error {
-	_m.Results = append(_m.Results, timeRecord)
-	return nil
-}
-
-type repository struct{}
-
-func (r *repository) Register(ctx context.Context, timeRecord *model.TimeRecord) error {
-	// NOTE: Force error
-	if timeRecord.Description == "error" {
-		return errors.New("")
-	}
-	return nil
-}
-
-func (r *repository) Save(ctx context.Context, timeRecord *model.TimeRecord) error {
-	// NOTE: Force error
-	if timeRecord.ID == "c03c4cd4-5211-4209-ac68-17e441152b1d" {
-		return errors.New("")
-	}
-	return nil
-}
-
-func (r *repository) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
-	timeRecord := model.TimeRecord{
-		Time:        time.Now().AddDate(0, 0, -1),
-		Status:      model.Pending,
-		Description: faker.Lorem().Sentence(10),
-		RegularTime: false,
-		EmployeeID:  "67fe1eea-25a4-4f23-bf67-64f9a085311d",
-	}
-	timeRecord.ID = id
-	// NOTE: Force error
-	if id == "c4a80742-5294-4f1e-8ea9-5126c9389d6f" {
-		return nil, errors.New("")
-	}
-	return &timeRecord, nil
-}
-
-func (r *repository) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
-	var timeRecords []*model.TimeRecord
-	timeRecords = append(
-		timeRecords,
-		&model.TimeRecord{
-			Time:        time.Now().AddDate(0, 0, -1),
-			Status:      model.Pending,
-			Description: faker.Lorem().Sentence(10),
-			RegularTime: false,
-			EmployeeID:  uuid.NewV4().String(),
-		},
-	)
-	// NOTE: Force error
-	if employeeID == "" {
-		return nil, errors.New("")
-	}
-	return timeRecords, nil
-}
+// func (_m *mockTimeRecordService_ListTimeRecordsServer) Send(timeRecord *pb.TimeRecord) error {
+// 	_m.Results = append(_m.Results, timeRecord)
+// 	return nil
+// }
 
 func TestGrpc_Register(t *testing.T) {
 
@@ -87,21 +35,35 @@ func TestGrpc_Register(t *testing.T) {
 			ID: uuid.NewV4().String(),
 		},
 	}
-	timeRecordService := service.NewTimeRecordService(new(repository))
+
+	db, err := db.ConnectMongoDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Session.Close()
+	defer db.DropDatabase()
+
+	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
 	ctx := new(context.Context)
-	registerRequest := &pb.RegisterTimeRecordRequest{
+	reqRegister := &pb.RegisterTimeRecordRequest{
 		Time:        timestamppb.Now(),
 		Description: faker.Lorem().Sentence(10),
 	}
 
-	_, err := timeRecordGrpcService.RegisterTimeRecord(*ctx, registerRequest)
+	tr, err := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
+	require.NotEmpty(t, uuid.FromStringOrNil(tr.Id))
+	require.NotEmpty(t, uuid.FromStringOrNil(tr.EmployeeId))
+	require.Equal(t, tr.Time, reqRegister.Time)
+	require.Equal(t, tr.Description, reqRegister.Description)
+	require.NotEmpty(t, tr.RegularTime)
+	require.NotEmpty(t, tr.Status)
 	require.Nil(t, err)
 
-	registerRequest.Time = timestamppb.Now()
-	registerRequest.Description = "error"
-	_, err = timeRecordGrpcService.RegisterTimeRecord(*ctx, registerRequest)
+	interceptor.EmployeeClaims.ID = ""
+	_, err = timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
 	require.NotNil(t, err)
 }
 
@@ -112,57 +74,129 @@ func TestGrpc_Approve(t *testing.T) {
 			ID: uuid.NewV4().String(),
 		},
 	}
-	timeRecordService := service.NewTimeRecordService(new(repository))
+
+	db, err := db.ConnectMongoDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Session.Close()
+	defer db.DropDatabase()
+
+	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
 	ctx := new(context.Context)
-	approveRequest := &pb.ApproveTimeRecordRequest{
-		Id: uuid.NewV4().String(),
+	reqRegister := &pb.RegisterTimeRecordRequest{
+		Time:        timestamppb.New(time.Now().AddDate(0, 0, -1)),
+		Description: faker.Lorem().Sentence(10),
 	}
+	tr, _ := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
 
-	_, err := timeRecordGrpcService.ApproveTimeRecord(*ctx, approveRequest)
-	require.Nil(t, err)
-
-	approveRequest.Id = "c4a80742-5294-4f1e-8ea9-5126c9389d6f"
-	_, err = timeRecordGrpcService.ApproveTimeRecord(*ctx, approveRequest)
+	reqApprove := &pb.ApproveTimeRecordRequest{Id: tr.Id}
+	_, err = timeRecordGrpcService.ApproveTimeRecord(*ctx, reqApprove)
 	require.NotNil(t, err)
+
+	interceptor.EmployeeClaims.ID = uuid.NewV4().String()
+	resApprove, err := timeRecordGrpcService.ApproveTimeRecord(*ctx, reqApprove)
+	require.NotEmpty(t, uuid.FromStringOrNil(resApprove.Id))
+	require.NotEmpty(t, model.Approved)
+	require.Nil(t, err)
 }
 
 func TestGrpc_Find(t *testing.T) {
 
-	interceptor := &grpc.AuthInterceptor{}
-	timeRecordService := service.NewTimeRecordService(new(repository))
+	interceptor := &grpc.AuthInterceptor{
+		EmployeeClaims: &model.EmployeeClaims{
+			ID: uuid.NewV4().String(),
+		},
+	}
+
+	db, err := db.ConnectMongoDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Session.Close()
+	defer db.DropDatabase()
+
+	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
 	ctx := new(context.Context)
+	reqRegister := &pb.RegisterTimeRecordRequest{
+		Time:        timestamppb.Now(),
+		Description: faker.Lorem().Sentence(10),
+	}
+	tr, _ := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
+
 	findRequest := &pb.FindTimeRecordRequest{
-		Id: uuid.NewV4().String(),
+		Id: tr.Id,
 	}
 
-	_, err := timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
+	resFind, err := timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
+	require.Equal(t, tr.Id, resFind.Id)
+	require.Equal(t, tr.EmployeeId, resFind.EmployeeId)
+	require.Equal(t, tr.Time.Seconds, resFind.Time.Seconds)
+	require.Equal(t, tr.Description, resFind.Description)
+	require.Equal(t, tr.RegularTime, resFind.RegularTime)
+	require.Equal(t, tr.Status, resFind.Status)
+	require.Equal(t, tr.ApprovedBy, resFind.ApprovedBy)
 	require.Nil(t, err)
 
-	findRequest.Id = "c4a80742-5294-4f1e-8ea9-5126c9389d6f"
+	findRequest.Id = ""
 	_, err = timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
 	require.NotNil(t, err)
 }
 
-func TestGrpc_FindAllByEmployeeID(t *testing.T) {
+// FIXME: runtime error in Mock context
+// func TestGrpc_FindAllByEmployeeID(t *testing.T) {
 
-	interceptor := &grpc.AuthInterceptor{}
-	timeRecordService := service.NewTimeRecordService(new(repository))
-	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
+// 	id := uuid.NewV4().String()
+// 	interceptor := &grpc.AuthInterceptor{
+// 		EmployeeClaims: &model.EmployeeClaims{
+// 			ID: id,
+// 		},
+// 	}
 
-	findAllByEmployeeIDRequest := &pb.ListTimeRecordsRequest{
-		EmployeeId: uuid.NewV4().String(),
-	}
+// 	db, err := db.ConnectMongoDB()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer db.Session.Close()
+// 	defer db.DropDatabase()
 
-	mock := &mockTimeRecordService_ListTimeRecordsServer{}
-	err := timeRecordGrpcService.ListTimeRecords(findAllByEmployeeIDRequest, mock)
-	require.Equal(t, 1, len(mock.Results))
-	require.Nil(t, err)
+// 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+// 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
+// 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
-	findAllByEmployeeIDRequest.EmployeeId = ""
-	err = timeRecordGrpcService.ListTimeRecords(findAllByEmployeeIDRequest, mock)
-	require.NotNil(t, err)
-}
+// 	mock := &mockTimeRecordService_ListTimeRecordsServer{}
+// 	reqRegister := &pb.RegisterTimeRecordRequest{
+// 		Time:        timestamppb.Now(),
+// 		Description: faker.Lorem().Sentence(10),
+// 	}
+// 	timeRecordGrpcService.RegisterTimeRecord(mock.Context(), reqRegister)
+
+// reqList := &pb.ListTimeRecordsRequest{
+// 	EmployeeId: id,
+// 	FromDate:   timestamppb.New(time.Now().AddDate(0, 0, -1)),
+// 	ToDate:     timestamppb.New(time.Now()),
+// }
+
+// timeRecordGrpcService.ListTimeRecords(reqList, mock)
+// log.Println(mock)
+// resFind := mock.Results[0]
+// require.Equal(t, 1, len(mock.Results))
+// require.Equal(t, tr.Id, resFind.Id)
+// require.Equal(t, tr.EmployeeId, resFind.EmployeeId)
+// require.Equal(t, tr.Time.Seconds, resFind.Time.Seconds)
+// require.Equal(t, tr.Description, resFind.Description)
+// require.Equal(t, tr.RegularTime, resFind.RegularTime)
+// require.Equal(t, tr.Status, resFind.Status)
+// require.Equal(t, tr.ApprovedBy, resFind.ApprovedBy)
+// require.Nil(t, err)
+
+// listTimeRecordsRequest.EmployeeId = ""
+// err = timeRecordGrpcService.ListTimeRecords(listTimeRecordsRequest, mock)
+// require.NotNil(t, err)
+// }
