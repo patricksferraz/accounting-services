@@ -38,6 +38,7 @@ var _time string
 var description string
 var fromDate string
 var toDate string
+var refusedReason string
 
 func wraper(
 	f func(s *service.TimeRecordService, ctx context.Context, vals ...interface{}) (interface{}, error),
@@ -121,6 +122,24 @@ var timeRecordApproveCmd = &cobra.Command{
 	},
 }
 
+// timeRecordRefuseCmd represents the timeRecordRefuseCmd command
+var timeRecordRefuseCmd = &cobra.Command{
+	Use:   "timeRecordRefuse",
+	Short: "Refuse a time record",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		wraper(
+			func(s *service.TimeRecordService, ctx context.Context, vals ...interface{}) (interface{}, error) {
+				id := vals[0].(string)
+				refusedReason := vals[1].(string)
+				res, err := s.Refuse(ctx, id, refusedReason)
+				return res, err
+			},
+			id, refusedReason,
+		)
+	},
+}
+
 // timeRecordFindCmd represents the timeRecordFindCmd command
 var timeRecordFindCmd = &cobra.Command{
 	Use:   "timeRecordFind",
@@ -194,6 +213,12 @@ func init() {
 	timeRecordApproveCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
 	timeRecordApproveCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
 	timeRecordApproveCmd.MarkFlagRequired("id")
+
+	timeRecordRefuseCmd.Flags().StringVarP(&id, "id", "i", "", "Time record id to approve")
+	timeRecordRefuseCmd.Flags().StringVarP(&refusedReason, "refusedReason", "r", "", "Reason for refusal")
+	timeRecordRefuseCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
+	timeRecordRefuseCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
+	timeRecordRefuseCmd.MarkFlagRequired("id")
 
 	timeRecordRegisterCmd.Flags().StringVarP(&_time, "time", "t", "", "Time record time")
 	timeRecordRegisterCmd.Flags().StringVarP(&description, "description", "d", "", "Time record description")
