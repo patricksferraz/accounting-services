@@ -1,7 +1,38 @@
 .PHONY: build
 
-build: ## Build docker image
-	docker-compose build
+build:
+	docker-compose build $(SERVICES)
+
+.PHONY: status logs start stop clean
+
+ps:
+	docker-compose ps $(SERVICES)
+
+logs:
+	docker-compose logs -f $(SERVICES)
+
+up:
+	docker-compose up -d $(SERVICES)
+
+stop:
+	docker-compose stop $(SERVICES)
+
+down:stop
+	docker-compose down -v --remove-orphans
+
+attach:
+	docker-compose exec $(SERVICE) bash
+
+prune:
+	docker system prune
+
+.PHONY: test
+
+test:
+	docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
+	docker-compose -f docker-compose.test.yml down --volumes
+
+.PHONY: gen gtest
 
 gen:
 	protoc \
@@ -12,28 +43,6 @@ gen:
 	--proto_path=service/common/protofiles \
 	service/common/protofiles/*.proto
 
-.PHONY: status logs start stop clean
-
-status: ## Get status of containers
-	docker-compose ps
-
-logs: ## Get logs of containers
-	docker-compose logs -f
-
-start: ## Start docker containers
-	docker-compose up -d
-
-stop: ## Stop docker containers
-	docker-compose stop
-
-clean:stop ## Stop docker containers, clean data and workspace
-	docker-compose down -v --remove-orphans
-
-prune:
-	docker system prune
-
-.PHONY: test
-
-test: ## Run tests
-	docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
-	docker-compose -f docker-compose.test.yml down --volumes
+gtest:
+	go test $(VERBOSE) -cover -coverprofile coverage.out ./$(SERVICE)...
+	go tool cover -html=coverage.out -o coverage.html
