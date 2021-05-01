@@ -197,6 +197,7 @@ func init() {
 	}
 
 	rootCmd.AddCommand(timeRecordFindCmd)
+	rootCmd.AddCommand(timeRecordRefuseCmd)
 	rootCmd.AddCommand(timeRecordApproveCmd)
 	rootCmd.AddCommand(timeRecordRegisterCmd)
 	rootCmd.AddCommand(timeRecordFindByEmployeeCmd)
@@ -209,16 +210,16 @@ func init() {
 	timeRecordFindCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
 	timeRecordFindCmd.MarkFlagRequired("id")
 
-	timeRecordApproveCmd.Flags().StringVarP(&id, "id", "i", "", "Time record id to approve")
-	timeRecordApproveCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
-	timeRecordApproveCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
-	timeRecordApproveCmd.MarkFlagRequired("id")
-
 	timeRecordRefuseCmd.Flags().StringVarP(&id, "id", "i", "", "Time record id to approve")
 	timeRecordRefuseCmd.Flags().StringVarP(&refusedReason, "refusedReason", "r", "", "Reason for refusal")
 	timeRecordRefuseCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
 	timeRecordRefuseCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
 	timeRecordRefuseCmd.MarkFlagRequired("id")
+
+	timeRecordApproveCmd.Flags().StringVarP(&id, "id", "i", "", "Time record id to approve")
+	timeRecordApproveCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
+	timeRecordApproveCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
+	timeRecordApproveCmd.MarkFlagRequired("id")
 
 	timeRecordRegisterCmd.Flags().StringVarP(&_time, "time", "t", "", "Time record time")
 	timeRecordRegisterCmd.Flags().StringVarP(&description, "description", "d", "", "Time record description")
