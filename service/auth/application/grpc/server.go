@@ -6,21 +6,19 @@ import (
 	"net"
 
 	"github.com/patricksferraz/accounting-services/service/auth/domain/service"
-	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/external"
 	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/repository"
-	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-func StartGrpcServer(database *db.Keycloak, port int) {
+func StartGrpcServer(_service *external.Keycloak, port int) {
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 
-	authRepository := repository.AuthRepositoryDb{Db: database}
-	authService := service.AuthService{
-		AuthRepository: &authRepository,
-	}
+	authRepository := repository.NewAuthRepository(_service)
+	authService := service.NewAuthService(authRepository)
 	authGrpcService := NewAuthGrpcService(authService)
 	pb.RegisterAuthServiceServer(grpcServer, authGrpcService)
 

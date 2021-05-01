@@ -3,16 +3,25 @@ package service
 import (
 	"context"
 
+	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
-	"github.com/patricksferraz/accounting-services/service/time-record/domain/repository"
 )
 
 type AuthService struct {
-	AuthRepository repository.AuthRepositoryInterface
+	Service pb.AuthServiceClient
 }
 
 func (a *AuthService) Verify(ctx context.Context, accessToken string) (*model.EmployeeClaims, error) {
-	employeeClaims, err := a.AuthRepository.Verify(ctx, accessToken)
+	req := &pb.FindEmployeeClaimsByTokenRequest{
+		AccessToken: accessToken,
+	}
+
+	employee, err := a.Service.FindEmployeeClaimsByToken(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	employeeClaims, err := model.NewEmployeeClaims(employee.Id, employee.Roles)
 	if err != nil {
 		return nil, err
 	}
@@ -20,8 +29,8 @@ func (a *AuthService) Verify(ctx context.Context, accessToken string) (*model.Em
 	return employeeClaims, nil
 }
 
-func NewAuthService(authRepository repository.AuthRepositoryInterface) *AuthService {
+func NewAuthService(service pb.AuthServiceClient) *AuthService {
 	return &AuthService{
-		AuthRepository: authRepository,
+		Service: service,
 	}
 }

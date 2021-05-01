@@ -128,6 +128,7 @@ To get a local copy up and running follow these simple steps.
   KEYCLOAK_REALM=keycloak_realm
   KEYCLOAK_CLIENT_ID=keycloak_client_id
   KEYCLOAK_CLIENT_SECRET=keycloak_client_secret
+  KEYCLOAK_AUDIENCE=account
   ```
 
   `kubectl create secret generic auth-secret --from-env-file ./credentials`

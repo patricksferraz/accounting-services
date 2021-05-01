@@ -1,4 +1,4 @@
-package db
+package external
 
 import (
 	"log"
@@ -15,6 +15,7 @@ type Keycloak struct {
 	Realm        string
 	ClientID     string
 	ClientSecret string
+	Audience     string
 	Client       gocloak.GoCloak
 }
 
@@ -38,6 +39,7 @@ func ConnectKeycloak() *Keycloak {
 		Realm:        os.Getenv("KEYCLOAK_REALM"),
 		ClientID:     os.Getenv("KEYCLOAK_CLIENT_ID"),
 		ClientSecret: os.Getenv("KEYCLOAK_CLIENT_SECRET"),
+		Audience:     os.Getenv("KEYCLOAK_AUDIENCE"),
 	}
 	k.Client = gocloak.NewClient(k.BasePath)
 

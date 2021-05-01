@@ -9,8 +9,8 @@ func init() {
 }
 
 type EmployeeClaims struct {
-	ID    string   `mapstructure:"sub" valid:"uuid"`
-	Roles []string `mapstructure:"roles" valid:"-"`
+	ID    string   `json:"id" mapstructure:"sub" valid:"uuid"`
+	Roles []string `json:"roles,omitempty" mapstructure:"roles" valid:"-"`
 }
 
 func (e *EmployeeClaims) isValid() error {
@@ -18,10 +18,10 @@ func (e *EmployeeClaims) isValid() error {
 	return err
 }
 
-func NewEmployeeClaims(id string, roles []string) (*EmployeeClaims, error) {
+func NewEmployeeClaims(employeeID string, roles []string) (*EmployeeClaims, error) {
 
 	employeeClaims := EmployeeClaims{
-		ID:    id,
+		ID:    employeeID,
 		Roles: roles,
 	}
 

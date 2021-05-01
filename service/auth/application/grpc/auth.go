@@ -4,21 +4,21 @@ import (
 	"context"
 
 	"github.com/patricksferraz/accounting-services/service/auth/domain/service"
-	"github.com/patricksferraz/accounting-services/service/common/application/grpc/pb"
+	"github.com/patricksferraz/accounting-services/service/common/pb"
 )
 
 type AuthGrpcService struct {
 	pb.UnimplementedAuthServiceServer
-	AuthService service.AuthService
+	AuthService *service.AuthService
 }
 
-func (a *AuthGrpcService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.JWTInfo, error) {
+func (a *AuthGrpcService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.JWT, error) {
 	jwt, err := a.AuthService.Login(ctx, in.Username, in.Password)
 	if err != nil {
-		return &pb.JWTInfo{}, err
+		return &pb.JWT{}, err
 	}
 
-	return &pb.JWTInfo{
+	return &pb.JWT{
 		AccessToken:      jwt.AccessToken,
 		IdToken:          jwt.IDToken,
 		ExpiresIn:        int64(jwt.ExpiresIn),
@@ -31,13 +31,13 @@ func (a *AuthGrpcService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.J
 	}, err
 }
 
-func (a *AuthGrpcService) RefreshToken(ctx context.Context, in *pb.RefreshTokenRequest) (*pb.JWTInfo, error) {
+func (a *AuthGrpcService) RefreshToken(ctx context.Context, in *pb.RefreshTokenRequest) (*pb.JWT, error) {
 	jwt, err := a.AuthService.RefreshToken(ctx, in.RefreshToken)
 	if err != nil {
-		return &pb.JWTInfo{}, err
+		return &pb.JWT{}, err
 	}
 
-	return &pb.JWTInfo{
+	return &pb.JWT{
 		AccessToken:      jwt.AccessToken,
 		IdToken:          jwt.IDToken,
 		ExpiresIn:        int64(jwt.ExpiresIn),
@@ -50,19 +50,19 @@ func (a *AuthGrpcService) RefreshToken(ctx context.Context, in *pb.RefreshTokenR
 	}, err
 }
 
-func (a *AuthGrpcService) FindEmployeeClaimsByToken(ctx context.Context, in *pb.FindEmployeeClaimsByTokenRequest) (*pb.EmployeeClaimsInfo, error) {
+func (a *AuthGrpcService) FindEmployeeClaimsByToken(ctx context.Context, in *pb.FindEmployeeClaimsByTokenRequest) (*pb.EmployeeClaims, error) {
 	employee, err := a.AuthService.FindEmployeeClaimsByToken(ctx, in.AccessToken)
 	if err != nil {
-		return &pb.EmployeeClaimsInfo{}, err
+		return &pb.EmployeeClaims{}, err
 	}
 
-	return &pb.EmployeeClaimsInfo{
+	return &pb.EmployeeClaims{
 		Id:    employee.ID,
 		Roles: employee.Roles,
 	}, nil
 }
 
-func NewAuthGrpcService(service service.AuthService) *AuthGrpcService {
+func NewAuthGrpcService(service *service.AuthService) *AuthGrpcService {
 	return &AuthGrpcService{
 		AuthService: service,
 	}

@@ -1,6 +1,7 @@
 package repository_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -16,13 +17,14 @@ func TestRepository_Register(t *testing.T) {
 
 	_db, _ := db.ConnectMongoDB()
 	repository := repository.NewTimeRecordRepositoryDb(_db)
+	ctx := context.Background()
 
 	now := time.Now()
 	description := faker.Lorem().Sentence(10)
 	employeeID := uuid.NewV4().String()
 	timeRecord, _ := model.NewTimeRecord(now, description, employeeID)
 
-	err := repository.Register(timeRecord)
+	err := repository.Register(ctx, timeRecord)
 	require.Nil(t, err)
 }
 
@@ -30,16 +32,17 @@ func TestRepository_Save(t *testing.T) {
 
 	_db, _ := db.ConnectMongoDB()
 	repository := repository.NewTimeRecordRepositoryDb(_db)
+	ctx := context.Background()
 
 	now := time.Now()
 	description := faker.Lorem().Sentence(10)
 	employeeID := uuid.NewV4().String()
 	timeRecord, _ := model.NewTimeRecord(now, description, employeeID)
 
-	repository.Register(timeRecord)
+	repository.Register(ctx, timeRecord)
 
 	timeRecord.Description = faker.Lorem().Sentence(10)
-	err := repository.Save(timeRecord)
+	err := repository.Save(ctx, timeRecord)
 	require.Nil(t, err)
 }
 
@@ -47,6 +50,7 @@ func TestRepository_Find(t *testing.T) {
 
 	_db, _ := db.ConnectMongoDB()
 	repository := repository.NewTimeRecordRepositoryDb(_db)
+	ctx := context.Background()
 
 	// NOTE: time.Time is in nanoseconds and mongodb in milliseconds
 	y, m, d := time.Now().Date()
@@ -55,9 +59,9 @@ func TestRepository_Find(t *testing.T) {
 	employeeID := uuid.NewV4().String()
 	timeRecord, _ := model.NewTimeRecord(now, description, employeeID)
 
-	repository.Register(timeRecord)
+	repository.Register(ctx, timeRecord)
 
-	timeRecordDb, err := repository.Find(timeRecord.ID)
+	timeRecordDb, err := repository.Find(ctx, timeRecord.ID)
 	require.Nil(t, err)
 	require.Equal(t, timeRecord.ID, timeRecordDb.ID)
 	require.True(t, timeRecord.Time.Equal(timeRecordDb.Time))
@@ -74,6 +78,7 @@ func TestRepository_FindAllByEmployeeID(t *testing.T) {
 
 	_db, _ := db.ConnectMongoDB()
 	repository := repository.NewTimeRecordRepositoryDb(_db)
+	ctx := context.Background()
 
 	// NOTE: time.Time is in nanoseconds and mongodb in milliseconds
 	y, m, d := time.Now().Date()
@@ -82,9 +87,9 @@ func TestRepository_FindAllByEmployeeID(t *testing.T) {
 	employeeID := uuid.NewV4().String()
 	timeRecord, _ := model.NewTimeRecord(now, description, employeeID)
 
-	repository.Register(timeRecord)
+	repository.Register(ctx, timeRecord)
 
-	timeRecordsDb, err := repository.FindAllByEmployeeID(timeRecord.EmployeeID)
+	timeRecordsDb, err := repository.FindAllByEmployeeID(ctx, timeRecord.EmployeeID, now, now)
 	require.Nil(t, err)
 	require.Equal(t, timeRecord.ID, timeRecordsDb[0].ID)
 	require.True(t, timeRecord.Time.Equal(timeRecordsDb[0].Time))

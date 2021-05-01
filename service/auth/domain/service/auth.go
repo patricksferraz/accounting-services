@@ -41,3 +41,9 @@ func (a *AuthService) FindEmployeeClaimsByToken(ctx context.Context, accessToken
 	}
 	return employee, nil
 }
+
+func NewAuthService(authRepository repository.AuthRepositoryInterface) *AuthService {
+	return &AuthService{
+		AuthRepository: authRepository,
+	}
+}

@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -14,7 +15,7 @@ import (
 
 type repository struct{}
 
-func (r *repository) Register(timeRecord *model.TimeRecord) error {
+func (r *repository) Register(ctx context.Context, timeRecord *model.TimeRecord) error {
 	// NOTE: Force error
 	if timeRecord.Description == "error" {
 		return errors.New("")
@@ -22,7 +23,7 @@ func (r *repository) Register(timeRecord *model.TimeRecord) error {
 	return nil
 }
 
-func (r *repository) Save(timeRecord *model.TimeRecord) error {
+func (r *repository) Save(ctx context.Context, timeRecord *model.TimeRecord) error {
 	// NOTE: Force error
 	if timeRecord.ID == "c03c4cd4-5211-4209-ac68-17e441152b1d" {
 		return errors.New("")
@@ -30,7 +31,7 @@ func (r *repository) Save(timeRecord *model.TimeRecord) error {
 	return nil
 }
 
-func (r *repository) Find(id string) (*model.TimeRecord, error) {
+func (r *repository) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
 	timeRecord := model.TimeRecord{
 		Time:        time.Now().AddDate(0, 0, -1),
 		Status:      model.Pending,
@@ -46,7 +47,7 @@ func (r *repository) Find(id string) (*model.TimeRecord, error) {
 	return &timeRecord, nil
 }
 
-func (r *repository) FindAllByEmployeeID(employeeID string) ([]*model.TimeRecord, error) {
+func (r *repository) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
 	var timeRecords []*model.TimeRecord
 	// NOTE: Force error
 	if employeeID == "" {
@@ -58,11 +59,12 @@ func (r *repository) FindAllByEmployeeID(employeeID string) ([]*model.TimeRecord
 func TestService_Register(t *testing.T) {
 
 	timeRecordService := service.NewTimeRecordService(new(repository))
+	ctx := context.Background()
 
 	_time := time.Now()
 	description := faker.Lorem().Sentence(10)
 	employeeID := uuid.NewV4().String()
-	timeRecord, err := timeRecordService.Register(_time, description, employeeID)
+	timeRecord, err := timeRecordService.Register(ctx, _time, description, employeeID)
 
 	require.Nil(t, err)
 	require.NotEmpty(t, uuid.FromStringOrNil(timeRecord.ID))
@@ -72,48 +74,52 @@ func TestService_Register(t *testing.T) {
 	require.Equal(t, timeRecord.RegularTime, true)
 	require.Equal(t, timeRecord.EmployeeID, employeeID)
 
-	_, err = timeRecordService.Register(_time.AddDate(0, 0, 1), description, employeeID)
+	_, err = timeRecordService.Register(ctx, _time.AddDate(0, 0, 1), description, employeeID)
 	require.NotNil(t, err)
-	_, err = timeRecordService.Register(_time, "error", employeeID)
+	_, err = timeRecordService.Register(ctx, _time, "error", employeeID)
 	require.NotNil(t, err)
 }
 
 func TestService_Approve(t *testing.T) {
 
 	timeRecordService := service.NewTimeRecordService(new(repository))
+	ctx := context.Background()
 
 	id := uuid.NewV4().String()
 	approvedBy := uuid.NewV4().String()
-	timeRecord, err := timeRecordService.Approve(id, approvedBy)
+	timeRecord, err := timeRecordService.Approve(ctx, id, approvedBy)
 	require.Nil(t, err)
 	require.Equal(t, timeRecord.ApprovedBy, approvedBy)
 
-	_, err = timeRecordService.Approve("c4a80742-5294-4f1e-8ea9-5126c9389d6f", approvedBy)
+	_, err = timeRecordService.Approve(ctx, "c4a80742-5294-4f1e-8ea9-5126c9389d6f", approvedBy)
 	require.NotNil(t, err)
-	_, err = timeRecordService.Approve(id, "67fe1eea-25a4-4f23-bf67-64f9a085311d")
+	_, err = timeRecordService.Approve(ctx, id, "67fe1eea-25a4-4f23-bf67-64f9a085311d")
 	require.NotNil(t, err)
-	_, err = timeRecordService.Approve("c03c4cd4-5211-4209-ac68-17e441152b1d", approvedBy)
+	_, err = timeRecordService.Approve(ctx, "c03c4cd4-5211-4209-ac68-17e441152b1d", approvedBy)
 	require.NotNil(t, err)
 }
 
 func TestService_Find(t *testing.T) {
 
 	timeRecordService := service.NewTimeRecordService(new(repository))
+	ctx := context.Background()
 
 	id := uuid.NewV4().String()
-	_, err := timeRecordService.Find(id)
+	_, err := timeRecordService.Find(ctx, id)
 	require.Nil(t, err)
-	_, err = timeRecordService.Find("c4a80742-5294-4f1e-8ea9-5126c9389d6f")
+	_, err = timeRecordService.Find(ctx, "c4a80742-5294-4f1e-8ea9-5126c9389d6f")
 	require.NotNil(t, err)
 }
 
 func TestService_FindAllByEmployeeID(t *testing.T) {
 
 	timeRecordService := service.NewTimeRecordService(new(repository))
+	ctx := context.Background()
+	now := time.Now()
 
 	employeeID := uuid.NewV4().String()
-	_, err := timeRecordService.FindAllByEmployeeID(employeeID)
+	_, err := timeRecordService.FindAllByEmployeeID(ctx, employeeID, now, now)
 	require.Nil(t, err)
-	_, err = timeRecordService.FindAllByEmployeeID("")
+	_, err = timeRecordService.FindAllByEmployeeID(ctx, "", now, now)
 	require.NotNil(t, err)
 }

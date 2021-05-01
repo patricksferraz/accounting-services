@@ -1,39 +1,48 @@
 .PHONY: build
 
-build: ## Build docker image
-	docker-compose build
-
-gen:
-	protoc \
-	--go_out=service/common/application/grpc/pb \
-	--go_opt=paths=source_relative \
-	--go-grpc_out=service/common/application/grpc/pb \
-	--go-grpc_opt=paths=source_relative \
-	--proto_path=service/common/application/grpc/protofiles \
-	service/common/application/grpc/protofiles/*.proto
+build:
+	docker-compose build $(SERVICES)
 
 .PHONY: status logs start stop clean
 
-status: ## Get status of containers
-	docker-compose ps
+ps:
+	docker-compose ps $(SERVICES)
 
-logs: ## Get logs of containers
-	docker-compose logs -f
+logs:
+	docker-compose logs -f $(SERVICES)
 
-start: ## Start docker containers
-	docker-compose up -d
+up:
+	docker-compose up -d $(SERVICES)
 
-stop: ## Stop docker containers
-	docker-compose stop
+stop:
+	docker-compose stop $(SERVICES)
 
-clean:stop ## Stop docker containers, clean data and workspace
+down:stop
 	docker-compose down -v --remove-orphans
+
+attach:
+	docker-compose exec $(SERVICE) bash
 
 prune:
 	docker system prune
 
 .PHONY: test
 
-test: ## Run tests
+test:
 	docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
 	docker-compose -f docker-compose.test.yml down --volumes
+
+.PHONY: gen gtest
+
+gen:
+	protoc \
+	--go_out=service/common/pb \
+	--go_opt=paths=source_relative \
+	--go-grpc_out=service/common/pb \
+	--go-grpc_opt=paths=source_relative \
+	--proto_path=service/common/protofiles \
+	service/common/protofiles/*.proto
+
+gtest:
+	go test $(VERBOSE) -cover -coverprofile coverage.out ./$(SERVICE)...
+	go tool cover -html=coverage.out -o coverage.html
