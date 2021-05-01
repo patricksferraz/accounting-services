@@ -6,8 +6,9 @@ import (
 
 func init() {
 	govalidator.TagMap["timeRecordStatus"] = govalidator.Validator(func(str string) bool {
-		res := str == Pending.String()
-		res = res || str == Approved.String()
+		res := str == PENDING.String()
+		res = res || str == APPROVED.String()
+		res = res || str == REFUSED.String()
 		return res
 	})
 }
@@ -15,16 +16,19 @@ func init() {
 type TimeRecordStatus int
 
 const (
-	Pending TimeRecordStatus = iota + 1
-	Approved
+	PENDING TimeRecordStatus = iota + 1
+	APPROVED
+	REFUSED
 )
 
 func (t TimeRecordStatus) String() string {
 	switch t {
-	case Pending:
-		return "pending"
-	case Approved:
-		return "approved"
+	case PENDING:
+		return "PENDING"
+	case APPROVED:
+		return "APPROVED"
+	case REFUSED:
+		return "REFUSED"
 	}
 	return ""
 }

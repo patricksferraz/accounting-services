@@ -99,8 +99,7 @@ func TestGrpc_Approve(t *testing.T) {
 
 	interceptor.EmployeeClaims.ID = uuid.NewV4().String()
 	resApprove, err := timeRecordGrpcService.ApproveTimeRecord(*ctx, reqApprove)
-	require.NotEmpty(t, uuid.FromStringOrNil(resApprove.Id))
-	require.NotEmpty(t, model.Approved)
+	require.NotEmpty(t, resApprove.Status)
 	require.Nil(t, err)
 }
 

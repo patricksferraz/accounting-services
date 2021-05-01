@@ -14,10 +14,14 @@ message ApproveTimeRecordRequest {
     string id = 1;
 }
 
-message ApproveTimeRecordResponse {
+message RefuseTimeRecordRequest {
     string id = 1;
-    string status = 2;
-    string error = 3;
+    string refused_reason = 2;
+}
+
+message StatusResponse {
+    string status = 1;
+    string error = 2;
 }
 
 message FindTimeRecordRequest {
@@ -37,6 +41,7 @@ message TimeRecord {
         STATUS_UNSPECIFIED = 0;
         PENDING = 1;
 		APPROVED = 2;
+        REFUSED = 3;
     }
 
     string id = 1;
@@ -57,7 +62,8 @@ message TimeRecord {
 
 service TimeRecordService {
     rpc RegisterTimeRecord (RegisterTimeRecordRequest) returns (TimeRecord);
-    rpc ApproveTimeRecord (ApproveTimeRecordRequest) returns (ApproveTimeRecordResponse);
+    rpc ApproveTimeRecord (ApproveTimeRecordRequest) returns (StatusResponse);
+    rpc RefuseTimeRecord (RefuseTimeRecordRequest) returns (StatusResponse);
     rpc FindTimeRecord (FindTimeRecordRequest) returns (TimeRecord);
     rpc ListTimeRecords (ListTimeRecordsRequest) returns (stream TimeRecord);
 }

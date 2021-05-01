@@ -33,18 +33,31 @@ func (t *TimeRecordGrpcService) RegisterTimeRecord(ctx context.Context, in *pb.R
 	}, nil
 }
 
-func (t *TimeRecordGrpcService) ApproveTimeRecord(ctx context.Context, in *pb.ApproveTimeRecordRequest) (*pb.ApproveTimeRecordResponse, error) {
+func (t *TimeRecordGrpcService) ApproveTimeRecord(ctx context.Context, in *pb.ApproveTimeRecordRequest) (*pb.StatusResponse, error) {
 	timeRecord, err := t.TimeRecordService.Approve(ctx, in.Id, t.AuthInterceptor.EmployeeClaims.ID)
 	if err != nil {
-		return &pb.ApproveTimeRecordResponse{
+		return &pb.StatusResponse{
 			Status: "not updated",
 			Error:  err.Error(),
 		}, err
 	}
 
-	return &pb.ApproveTimeRecordResponse{
-		Id:     timeRecord.ID,
-		Status: timeRecord.Status.String(),
+	return &pb.StatusResponse{
+		Status: "successfully " + timeRecord.Status.String(),
+	}, nil
+}
+
+func (t *TimeRecordGrpcService) RefuseTimeRecord(ctx context.Context, in *pb.RefuseTimeRecordRequest) (*pb.StatusResponse, error) {
+	timeRecord, err := t.TimeRecordService.Refuse(ctx, in.Id, in.RefusedReason, t.AuthInterceptor.EmployeeClaims.ID)
+	if err != nil {
+		return &pb.StatusResponse{
+			Status: "not updated",
+			Error:  err.Error(),
+		}, err
+	}
+
+	return &pb.StatusResponse{
+		Status: "successfully " + timeRecord.Status.String(),
 	}, nil
 }
 
