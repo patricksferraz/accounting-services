@@ -45,6 +45,25 @@ func (p *TimeRecordService) Approve(ctx context.Context, id, employeeID string) 
 	return timeRecord, nil
 }
 
+func (p *TimeRecordService) Refuse(ctx context.Context, id, refusedReason, employeeID string) (*model.TimeRecord, error) {
+	timeRecord, err := p.TimeRecordRepository.Find(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = timeRecord.Refuse(employeeID, refusedReason)
+	if err != nil {
+		return nil, err
+	}
+
+	err = p.TimeRecordRepository.Save(ctx, timeRecord)
+	if err != nil {
+		return nil, err
+	}
+
+	return timeRecord, nil
+}
+
 func (p *TimeRecordService) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
 	timeRecord, err := p.TimeRecordRepository.Find(ctx, id)
 	if err != nil {

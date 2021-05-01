@@ -51,8 +51,27 @@ func (t *TimeRecordService) Approve(ctx context.Context, id string) (*model.Resp
 		return nil, err
 	}
 
-	response := model.NewResponse(res.Id, res.Status, res.Error)
-	return response, nil
+	return &model.Response{
+		Status: res.Status,
+		Error:  res.Error,
+	}, nil
+}
+
+func (t *TimeRecordService) Refuse(ctx context.Context, id, refusedReason string) (*model.Response, error) {
+	req := &pb.RefuseTimeRecordRequest{
+		Id:            id,
+		RefusedReason: refusedReason,
+	}
+
+	res, err := t.Service.RefuseTimeRecord(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Response{
+		Status: res.Status,
+		Error:  res.Error,
+	}, nil
 }
 
 func (t *TimeRecordService) Find(ctx context.Context, id string) (*trmodel.TimeRecord, error) {

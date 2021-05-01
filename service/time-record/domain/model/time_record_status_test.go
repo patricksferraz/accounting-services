@@ -11,11 +11,13 @@ import (
 
 func TestModel_TimeRecordStatus(t *testing.T) {
 
-	status := model.Pending
-	require.Equal(t, status.String(), model.Pending.String())
-	status = model.Approved
-	require.Equal(t, status.String(), model.Approved.String())
+	status := model.PENDING
+	require.Equal(t, status.String(), model.PENDING.String())
+	status = model.APPROVED
+	require.Equal(t, status.String(), model.APPROVED.String())
+	status = model.REFUSED
+	require.Equal(t, status.String(), model.REFUSED.String())
 
-	otherStatus := model.TimeRecordStatus(faker.RandomInt(int(model.Approved)+1, math.MaxInt64))
+	otherStatus := model.TimeRecordStatus(faker.RandomInt(int(model.REFUSED)+1, math.MaxInt64))
 	require.Equal(t, otherStatus.String(), "")
 }

@@ -19,7 +19,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TimeRecordServiceClient interface {
 	RegisterTimeRecord(ctx context.Context, in *RegisterTimeRecordRequest, opts ...grpc.CallOption) (*TimeRecord, error)
-	ApproveTimeRecord(ctx context.Context, in *ApproveTimeRecordRequest, opts ...grpc.CallOption) (*ApproveTimeRecordResponse, error)
+	ApproveTimeRecord(ctx context.Context, in *ApproveTimeRecordRequest, opts ...grpc.CallOption) (*StatusResponse, error)
+	RefuseTimeRecord(ctx context.Context, in *RefuseTimeRecordRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	FindTimeRecord(ctx context.Context, in *FindTimeRecordRequest, opts ...grpc.CallOption) (*TimeRecord, error)
 	ListTimeRecords(ctx context.Context, in *ListTimeRecordsRequest, opts ...grpc.CallOption) (TimeRecordService_ListTimeRecordsClient, error)
 }
@@ -41,9 +42,18 @@ func (c *timeRecordServiceClient) RegisterTimeRecord(ctx context.Context, in *Re
 	return out, nil
 }
 
-func (c *timeRecordServiceClient) ApproveTimeRecord(ctx context.Context, in *ApproveTimeRecordRequest, opts ...grpc.CallOption) (*ApproveTimeRecordResponse, error) {
-	out := new(ApproveTimeRecordResponse)
+func (c *timeRecordServiceClient) ApproveTimeRecord(ctx context.Context, in *ApproveTimeRecordRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+	out := new(StatusResponse)
 	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.TimeRecordService/ApproveTimeRecord", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *timeRecordServiceClient) RefuseTimeRecord(ctx context.Context, in *RefuseTimeRecordRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.TimeRecordService/RefuseTimeRecord", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +106,8 @@ func (x *timeRecordServiceListTimeRecordsClient) Recv() (*TimeRecord, error) {
 // for forward compatibility
 type TimeRecordServiceServer interface {
 	RegisterTimeRecord(context.Context, *RegisterTimeRecordRequest) (*TimeRecord, error)
-	ApproveTimeRecord(context.Context, *ApproveTimeRecordRequest) (*ApproveTimeRecordResponse, error)
+	ApproveTimeRecord(context.Context, *ApproveTimeRecordRequest) (*StatusResponse, error)
+	RefuseTimeRecord(context.Context, *RefuseTimeRecordRequest) (*StatusResponse, error)
 	FindTimeRecord(context.Context, *FindTimeRecordRequest) (*TimeRecord, error)
 	ListTimeRecords(*ListTimeRecordsRequest, TimeRecordService_ListTimeRecordsServer) error
 	mustEmbedUnimplementedTimeRecordServiceServer()
@@ -109,8 +120,11 @@ type UnimplementedTimeRecordServiceServer struct {
 func (UnimplementedTimeRecordServiceServer) RegisterTimeRecord(context.Context, *RegisterTimeRecordRequest) (*TimeRecord, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterTimeRecord not implemented")
 }
-func (UnimplementedTimeRecordServiceServer) ApproveTimeRecord(context.Context, *ApproveTimeRecordRequest) (*ApproveTimeRecordResponse, error) {
+func (UnimplementedTimeRecordServiceServer) ApproveTimeRecord(context.Context, *ApproveTimeRecordRequest) (*StatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ApproveTimeRecord not implemented")
+}
+func (UnimplementedTimeRecordServiceServer) RefuseTimeRecord(context.Context, *RefuseTimeRecordRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RefuseTimeRecord not implemented")
 }
 func (UnimplementedTimeRecordServiceServer) FindTimeRecord(context.Context, *FindTimeRecordRequest) (*TimeRecord, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindTimeRecord not implemented")
@@ -163,6 +177,24 @@ func _TimeRecordService_ApproveTimeRecord_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TimeRecordServiceServer).ApproveTimeRecord(ctx, req.(*ApproveTimeRecordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TimeRecordService_RefuseTimeRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefuseTimeRecordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TimeRecordServiceServer).RefuseTimeRecord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/github.com.patricksferraz.accountingServices.TimeRecordService/RefuseTimeRecord",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TimeRecordServiceServer).RefuseTimeRecord(ctx, req.(*RefuseTimeRecordRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -220,6 +252,10 @@ var TimeRecordService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ApproveTimeRecord",
 			Handler:    _TimeRecordService_ApproveTimeRecord_Handler,
+		},
+		{
+			MethodName: "RefuseTimeRecord",
+			Handler:    _TimeRecordService_RefuseTimeRecord_Handler,
 		},
 		{
 			MethodName: "FindTimeRecord",

@@ -20,7 +20,7 @@ func TestModel_NewTimeRecord(t *testing.T) {
 	require.Nil(t, err)
 	require.NotEmpty(t, uuid.FromStringOrNil(timeRecord.ID))
 	require.Equal(t, timeRecord.Time, now)
-	require.Equal(t, timeRecord.Status, model.Approved)
+	require.Equal(t, timeRecord.Status, model.APPROVED)
 	require.Equal(t, timeRecord.Description, description)
 	require.Equal(t, timeRecord.RegularTime, true)
 	require.Equal(t, timeRecord.EmployeeID, employeeID)
@@ -31,7 +31,7 @@ func TestModel_NewTimeRecord(t *testing.T) {
 	require.Nil(t, err)
 	require.NotEmpty(t, uuid.FromStringOrNil(timeRecord.ID))
 	require.Equal(t, timeRecord.Time, yesterday)
-	require.Equal(t, timeRecord.Status, model.Pending)
+	require.Equal(t, timeRecord.Status, model.PENDING)
 	require.Equal(t, timeRecord.Description, description)
 	require.Equal(t, timeRecord.RegularTime, false)
 	require.Equal(t, timeRecord.EmployeeID, employeeID)
@@ -54,17 +54,54 @@ func TestModel_ChangeStatusOfATimeRecord(t *testing.T) {
 	employeeID := uuid.NewV4().String()
 	timeRecord, _ := model.NewTimeRecord(yesterday, description, employeeID)
 
-	approvedBy := uuid.NewV4().String()
-	err := timeRecord.Approve(approvedBy)
+	auditedBy := uuid.NewV4().String()
+	err := timeRecord.Approve(auditedBy)
 	require.Nil(t, err)
-	require.Equal(t, timeRecord.Status, model.Approved)
+	require.Equal(t, timeRecord.Status, model.APPROVED)
 	require.True(t, timeRecord.CreatedAt.Before(timeRecord.UpdatedAt))
 
-	err = timeRecord.Approve(approvedBy)
+	err = timeRecord.Approve(auditedBy)
+	require.NotNil(t, err)
+
+	err = timeRecord.Refuse(auditedBy, description)
+	require.NotNil(t, err)
+
+	timeRecord, _ = model.NewTimeRecord(yesterday, description, employeeID)
+
+	err = timeRecord.Refuse(auditedBy, description)
+	require.Nil(t, err)
+	require.Equal(t, timeRecord.Status, model.REFUSED)
+	require.Equal(t, timeRecord.RefusedReason, description)
+	require.True(t, timeRecord.CreatedAt.Before(timeRecord.UpdatedAt))
+
+	err = timeRecord.Refuse(auditedBy, description)
+	require.NotNil(t, err)
+
+	err = timeRecord.Approve(auditedBy)
+	require.NotNil(t, err)
+
+	timeRecord, _ = model.NewTimeRecord(yesterday, description, employeeID)
+
+	err = timeRecord.Refuse(auditedBy, "")
+	require.NotNil(t, err)
+
+	timeRecord, _ = model.NewTimeRecord(yesterday, description, employeeID)
+
+	err = timeRecord.Refuse("", description)
 	require.NotNil(t, err)
 
 	timeRecord, _ = model.NewTimeRecord(yesterday, description, employeeID)
 
 	err = timeRecord.Approve(employeeID)
+	require.NotNil(t, err)
+
+	timeRecord, _ = model.NewTimeRecord(yesterday, description, employeeID)
+
+	err = timeRecord.Approve("")
+	require.NotNil(t, err)
+
+	timeRecord, _ = model.NewTimeRecord(yesterday, description, employeeID)
+
+	err = timeRecord.Refuse(employeeID, description)
 	require.NotNil(t, err)
 }
