@@ -60,6 +60,9 @@ func TestModel_ChangeStatusOfATimeRecord(t *testing.T) {
 	require.Equal(t, timeRecord.Status, model.Approved)
 	require.True(t, timeRecord.CreatedAt.Before(timeRecord.UpdatedAt))
 
+	err = timeRecord.Approve(approvedBy)
+	require.NotNil(t, err)
+
 	timeRecord, _ = model.NewTimeRecord(yesterday, description, employeeID)
 
 	err = timeRecord.Approve(employeeID)

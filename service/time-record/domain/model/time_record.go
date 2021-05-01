@@ -42,6 +42,11 @@ func (t *TimeRecord) isValid() error {
 }
 
 func (t *TimeRecord) Approve(approvedBy string) error {
+
+	if t.Status == Approved {
+		return errors.New("the time record cannot be approved again")
+	}
+
 	t.Status = Approved
 	t.UpdatedAt = time.Now()
 	t.ApprovedBy = approvedBy

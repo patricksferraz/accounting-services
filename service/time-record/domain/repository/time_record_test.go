@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
 	"github.com/stretchr/testify/require"
@@ -22,7 +23,7 @@ func (r *repository) Find(ctx context.Context, id string) (*model.TimeRecord, er
 	return &model.TimeRecord{}, nil
 }
 
-func (r *repository) FindAllByEmployeeID(ctx context.Context, employeeID string) ([]*model.TimeRecord, error) {
+func (r *repository) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
 	var timeRecords []*model.TimeRecord
 	return timeRecords, nil
 }
