@@ -7,15 +7,15 @@ import (
 )
 
 func init() {
+	index := mgo.Index{
+		Name:     "time_record_id_time_unique",
+		Key:      []string{"employee_id", "time"},
+		Unique:   true,
+		DropDups: true,
+	}
 	migrate.Register(func(db *mgo.Database) error {
-		return db.C(repository.TimeRecordCollection).EnsureIndex(
-			mgo.Index{
-				Name:   "time-record-unique-time",
-				Key:    []string{"employee_id", "time"},
-				Unique: true,
-			},
-		)
+		return db.C(repository.TimeRecordCollection).EnsureIndex(index)
 	}, func(db *mgo.Database) error {
-		return db.C(repository.TimeRecordCollection).DropIndexName("time-record-unique-time")
+		return db.C(repository.TimeRecordCollection).DropIndexName(index.Name)
 	})
 }

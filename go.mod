@@ -11,7 +11,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.1.2
-	github.com/patricksferraz/mongo-migrate v0.1.5-0.20210502001651-29897db09746
+	github.com/patricksferraz/mongo-migrate v0.1.4-1
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.1.3

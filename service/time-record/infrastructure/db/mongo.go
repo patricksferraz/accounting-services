@@ -35,9 +35,11 @@ func ConnectMongoDB() (*mgo.Database, error) {
 	}
 	db = session.DB(utils.GetEnv("DB_NAME", "time_record_service"))
 
-	migrate.SetDatabase(db)
-	if err := migrate.Up(migrate.AllAvailable); err != nil {
-		return nil, err
+	if utils.GetEnv("DB_MIGRATE", "false") == "true" {
+		migrate.SetDatabase(db)
+		if err := migrate.Up(migrate.AllAvailable); err != nil {
+			return nil, err
+		}
 	}
 
 	return db, nil
