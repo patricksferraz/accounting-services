@@ -7,7 +7,9 @@ import (
 	"runtime"
 
 	"github.com/joho/godotenv"
+	_ "github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db/migrations"
 	"github.com/patricksferraz/accounting-services/utils"
+	migrate "github.com/patricksferraz/mongo-migrate"
 	mgo "gopkg.in/mgo.v2"
 )
 
@@ -32,6 +34,13 @@ func ConnectMongoDB() (*mgo.Database, error) {
 		return nil, err
 	}
 	db = session.DB(utils.GetEnv("DB_NAME", "time_record_service"))
+
+	if utils.GetEnv("DB_MIGRATE", "false") == "true" {
+		migrate.SetDatabase(db)
+		if err := migrate.Up(migrate.AllAvailable); err != nil {
+			return nil, err
+		}
+	}
 
 	return db, nil
 }
