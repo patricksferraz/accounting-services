@@ -28,8 +28,15 @@ message FindTimeRecordRequest {
     string id = 1;
 }
 
-message ListTimeRecordsRequest {
+message SearchTimeRecordsRequest {
     string employee_id = 1;
+    google.protobuf.Timestamp from_date = 2;
+    google.protobuf.Timestamp to_date = 3;
+    // int32 page_size = 4;
+    // string page_token = 5;
+}
+
+message ListTimeRecordsRequest {
     google.protobuf.Timestamp from_date = 2;
     google.protobuf.Timestamp to_date = 3;
     // int32 page_size = 4;
@@ -65,5 +72,6 @@ service TimeRecordService {
     rpc ApproveTimeRecord (ApproveTimeRecordRequest) returns (StatusResponse);
     rpc RefuseTimeRecord (RefuseTimeRecordRequest) returns (StatusResponse);
     rpc FindTimeRecord (FindTimeRecordRequest) returns (TimeRecord);
+    rpc SearchTimeRecords (SearchTimeRecordsRequest) returns (stream TimeRecord);
     rpc ListTimeRecords (ListTimeRecordsRequest) returns (stream TimeRecord);
 }

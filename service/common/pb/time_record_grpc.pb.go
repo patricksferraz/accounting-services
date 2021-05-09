@@ -22,6 +22,7 @@ type TimeRecordServiceClient interface {
 	ApproveTimeRecord(ctx context.Context, in *ApproveTimeRecordRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	RefuseTimeRecord(ctx context.Context, in *RefuseTimeRecordRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	FindTimeRecord(ctx context.Context, in *FindTimeRecordRequest, opts ...grpc.CallOption) (*TimeRecord, error)
+	SearchTimeRecords(ctx context.Context, in *SearchTimeRecordsRequest, opts ...grpc.CallOption) (TimeRecordService_SearchTimeRecordsClient, error)
 	ListTimeRecords(ctx context.Context, in *ListTimeRecordsRequest, opts ...grpc.CallOption) (TimeRecordService_ListTimeRecordsClient, error)
 }
 
@@ -69,8 +70,40 @@ func (c *timeRecordServiceClient) FindTimeRecord(ctx context.Context, in *FindTi
 	return out, nil
 }
 
+func (c *timeRecordServiceClient) SearchTimeRecords(ctx context.Context, in *SearchTimeRecordsRequest, opts ...grpc.CallOption) (TimeRecordService_SearchTimeRecordsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &TimeRecordService_ServiceDesc.Streams[0], "/github.com.patricksferraz.accountingServices.TimeRecordService/SearchTimeRecords", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &timeRecordServiceSearchTimeRecordsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type TimeRecordService_SearchTimeRecordsClient interface {
+	Recv() (*TimeRecord, error)
+	grpc.ClientStream
+}
+
+type timeRecordServiceSearchTimeRecordsClient struct {
+	grpc.ClientStream
+}
+
+func (x *timeRecordServiceSearchTimeRecordsClient) Recv() (*TimeRecord, error) {
+	m := new(TimeRecord)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *timeRecordServiceClient) ListTimeRecords(ctx context.Context, in *ListTimeRecordsRequest, opts ...grpc.CallOption) (TimeRecordService_ListTimeRecordsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &TimeRecordService_ServiceDesc.Streams[0], "/github.com.patricksferraz.accountingServices.TimeRecordService/ListTimeRecords", opts...)
+	stream, err := c.cc.NewStream(ctx, &TimeRecordService_ServiceDesc.Streams[1], "/github.com.patricksferraz.accountingServices.TimeRecordService/ListTimeRecords", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +142,7 @@ type TimeRecordServiceServer interface {
 	ApproveTimeRecord(context.Context, *ApproveTimeRecordRequest) (*StatusResponse, error)
 	RefuseTimeRecord(context.Context, *RefuseTimeRecordRequest) (*StatusResponse, error)
 	FindTimeRecord(context.Context, *FindTimeRecordRequest) (*TimeRecord, error)
+	SearchTimeRecords(*SearchTimeRecordsRequest, TimeRecordService_SearchTimeRecordsServer) error
 	ListTimeRecords(*ListTimeRecordsRequest, TimeRecordService_ListTimeRecordsServer) error
 	mustEmbedUnimplementedTimeRecordServiceServer()
 }
@@ -128,6 +162,9 @@ func (UnimplementedTimeRecordServiceServer) RefuseTimeRecord(context.Context, *R
 }
 func (UnimplementedTimeRecordServiceServer) FindTimeRecord(context.Context, *FindTimeRecordRequest) (*TimeRecord, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindTimeRecord not implemented")
+}
+func (UnimplementedTimeRecordServiceServer) SearchTimeRecords(*SearchTimeRecordsRequest, TimeRecordService_SearchTimeRecordsServer) error {
+	return status.Errorf(codes.Unimplemented, "method SearchTimeRecords not implemented")
 }
 func (UnimplementedTimeRecordServiceServer) ListTimeRecords(*ListTimeRecordsRequest, TimeRecordService_ListTimeRecordsServer) error {
 	return status.Errorf(codes.Unimplemented, "method ListTimeRecords not implemented")
@@ -217,6 +254,27 @@ func _TimeRecordService_FindTimeRecord_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TimeRecordService_SearchTimeRecords_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SearchTimeRecordsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(TimeRecordServiceServer).SearchTimeRecords(m, &timeRecordServiceSearchTimeRecordsServer{stream})
+}
+
+type TimeRecordService_SearchTimeRecordsServer interface {
+	Send(*TimeRecord) error
+	grpc.ServerStream
+}
+
+type timeRecordServiceSearchTimeRecordsServer struct {
+	grpc.ServerStream
+}
+
+func (x *timeRecordServiceSearchTimeRecordsServer) Send(m *TimeRecord) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _TimeRecordService_ListTimeRecords_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(ListTimeRecordsRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -263,6 +321,11 @@ var TimeRecordService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SearchTimeRecords",
+			Handler:       _TimeRecordService_SearchTimeRecords_Handler,
+			ServerStreams: true,
+		},
 		{
 			StreamName:    "ListTimeRecords",
 			Handler:       _TimeRecordService_ListTimeRecords_Handler,
