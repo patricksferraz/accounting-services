@@ -157,9 +157,9 @@ var timeRecordFindCmd = &cobra.Command{
 	},
 }
 
-// timeRecordFindByEmployeeCmd represents the timeRecordFindByEmployeeCmd command
-var timeRecordFindByEmployeeCmd = &cobra.Command{
-	Use:   "timeRecordFindByEmployee",
+// timeRecordSearchCmd represents the timeRecordSearchCmd command
+var timeRecordSearchCmd = &cobra.Command{
+	Use:   "timeRecordSearch",
 	Short: "Find all time records by employee id",
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -178,10 +178,38 @@ var timeRecordFindByEmployeeCmd = &cobra.Command{
 				id := vals[0].(string)
 				fromDate := vals[1].(time.Time)
 				toDate := vals[2].(time.Time)
-				res, err := s.FindAllByEmployeeID(ctx, id, fromDate, toDate)
+				res, err := s.SearchTimeRecords(ctx, id, fromDate, toDate)
 				return res, err
 			},
 			id, fromDate, toDate,
+		)
+	},
+}
+
+// timeRecordListCmd represents the timeRecordListCmd command
+var timeRecordListCmd = &cobra.Command{
+	Use:   "timeRecordList",
+	Short: "Find all time records by employee id",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		fromDate, err := time.Parse(time.RFC3339, fromDate)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		toDate, err := time.Parse(time.RFC3339, toDate)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		wraper(
+			func(s *service.TimeRecordService, ctx context.Context, vals ...interface{}) (interface{}, error) {
+				fromDate := vals[0].(time.Time)
+				toDate := vals[1].(time.Time)
+				res, err := s.ListTimeRecords(ctx, fromDate, toDate)
+				return res, err
+			},
+			fromDate, toDate,
 		)
 	},
 }
@@ -197,10 +225,11 @@ func init() {
 	}
 
 	rootCmd.AddCommand(timeRecordFindCmd)
+	rootCmd.AddCommand(timeRecordListCmd)
+	rootCmd.AddCommand(timeRecordSearchCmd)
 	rootCmd.AddCommand(timeRecordRefuseCmd)
 	rootCmd.AddCommand(timeRecordApproveCmd)
 	rootCmd.AddCommand(timeRecordRegisterCmd)
-	rootCmd.AddCommand(timeRecordFindByEmployeeCmd)
 
 	defaultUser := os.Getenv("AUTH_SERVICE_USERNAME")
 	defaultPass := os.Getenv("AUTH_SERVICE_PASSWORD")
@@ -209,6 +238,18 @@ func init() {
 	timeRecordFindCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
 	timeRecordFindCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
 	timeRecordFindCmd.MarkFlagRequired("id")
+
+	timeRecordListCmd.Flags().StringVarP(&fromDate, "from", "f", time.Now().Format(time.RFC3339), "Date ('from') for search all time records")
+	timeRecordListCmd.Flags().StringVarP(&toDate, "to", "t", time.Now().Format(time.RFC3339), "Date ('to') for search all time records")
+	timeRecordListCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
+	timeRecordListCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
+
+	timeRecordSearchCmd.Flags().StringVarP(&id, "employeeID", "i", "", "Employee id to search")
+	timeRecordSearchCmd.Flags().StringVarP(&fromDate, "from", "f", time.Now().Format(time.RFC3339), "Date ('from') for search all time records")
+	timeRecordSearchCmd.Flags().StringVarP(&toDate, "to", "t", time.Now().Format(time.RFC3339), "Date ('to') for search all time records")
+	timeRecordSearchCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
+	timeRecordSearchCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
+	timeRecordSearchCmd.MarkFlagRequired("employeeID")
 
 	timeRecordRefuseCmd.Flags().StringVarP(&id, "id", "i", "", "Time record id to approve")
 	timeRecordRefuseCmd.Flags().StringVarP(&refusedReason, "refusedReason", "r", "", "Reason for refusal")
@@ -226,13 +267,6 @@ func init() {
 	timeRecordRegisterCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
 	timeRecordRegisterCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
 	timeRecordRegisterCmd.MarkFlagRequired("time")
-
-	timeRecordFindByEmployeeCmd.Flags().StringVarP(&id, "employeeID", "i", "", "Employee id to find all time records")
-	timeRecordFindByEmployeeCmd.Flags().StringVarP(&fromDate, "from", "f", time.Now().Format(time.RFC3339), "Date ('from') for search all time records")
-	timeRecordFindByEmployeeCmd.Flags().StringVarP(&toDate, "to", "t", time.Now().Format(time.RFC3339), "Date ('to') for search all time records")
-	timeRecordFindByEmployeeCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
-	timeRecordFindByEmployeeCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
-	timeRecordFindByEmployeeCmd.MarkFlagRequired("employeeID")
 
 	// Here you will define your flags and configuration settings.
 

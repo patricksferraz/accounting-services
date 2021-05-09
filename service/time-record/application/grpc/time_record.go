@@ -80,8 +80,31 @@ func (t *TimeRecordGrpcService) FindTimeRecord(ctx context.Context, in *pb.FindT
 	}, nil
 }
 
-func (t *TimeRecordGrpcService) ListTimeRecords(in *pb.ListTimeRecordsRequest, stream pb.TimeRecordService_ListTimeRecordsServer) error {
+func (t *TimeRecordGrpcService) SearchTimeRecords(in *pb.SearchTimeRecordsRequest, stream pb.TimeRecordService_SearchTimeRecordsServer) error {
 	timeRecords, err := t.TimeRecordService.FindAllByEmployeeID(stream.Context(), in.EmployeeId, in.FromDate.AsTime(), in.ToDate.AsTime())
+	if err != nil {
+		return err
+	}
+
+	for _, timeRecord := range timeRecords {
+		stream.Send(&pb.TimeRecord{
+			Id:          timeRecord.ID,
+			Time:        timestamppb.New(timeRecord.Time),
+			Status:      pb.TimeRecord_Status(timeRecord.Status),
+			Description: timeRecord.Description,
+			RegularTime: timeRecord.RegularTime,
+			EmployeeId:  timeRecord.EmployeeID,
+			ApprovedBy:  timeRecord.ApprovedBy,
+			CreatedAt:   timestamppb.New(timeRecord.CreatedAt),
+			UpdatedAt:   timestamppb.New(timeRecord.UpdatedAt),
+		})
+	}
+
+	return nil
+}
+
+func (t *TimeRecordGrpcService) ListTimeRecords(in *pb.ListTimeRecordsRequest, stream pb.TimeRecordService_ListTimeRecordsServer) error {
+	timeRecords, err := t.TimeRecordService.FindAllByEmployeeID(stream.Context(), t.AuthInterceptor.EmployeeClaims.ID, in.FromDate.AsTime(), in.ToDate.AsTime())
 	if err != nil {
 		return err
 	}

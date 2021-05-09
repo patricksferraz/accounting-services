@@ -99,13 +99,50 @@ func (t *TimeRecordService) Find(ctx context.Context, id string) (*trmodel.TimeR
 	return tr, nil
 }
 
-func (t *TimeRecordService) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*trmodel.TimeRecord, error) {
+func (t *TimeRecordService) SearchTimeRecords(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*trmodel.TimeRecord, error) {
 	var timeRecords []*trmodel.TimeRecord
 
-	req := &pb.ListTimeRecordsRequest{
+	req := &pb.SearchTimeRecordsRequest{
 		EmployeeId: employeeID,
 		FromDate:   timestamppb.New(fromDate),
 		ToDate:     timestamppb.New(toDate),
+	}
+
+	stream, err := t.Service.SearchTimeRecords(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	for {
+		res, err := stream.Recv()
+		if err == io.EOF {
+			return timeRecords, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		tr := &trmodel.TimeRecord{
+			Time:        res.Time.AsTime(),
+			Status:      trmodel.TimeRecordStatus(res.Status),
+			Description: res.Description,
+			RegularTime: res.RegularTime,
+			EmployeeID:  res.EmployeeId,
+			ApprovedBy:  res.ApprovedBy,
+		}
+		tr.ID = res.Id
+		tr.CreatedAt = res.CreatedAt.AsTime()
+		tr.UpdatedAt = res.UpdatedAt.AsTime()
+		timeRecords = append(timeRecords, tr)
+	}
+}
+
+func (t *TimeRecordService) ListTimeRecords(ctx context.Context, fromDate, toDate time.Time) ([]*trmodel.TimeRecord, error) {
+	var timeRecords []*trmodel.TimeRecord
+
+	req := &pb.ListTimeRecordsRequest{
+		FromDate: timestamppb.New(fromDate),
+		ToDate:   timestamppb.New(toDate),
 	}
 
 	stream, err := t.Service.ListTimeRecords(ctx, req)

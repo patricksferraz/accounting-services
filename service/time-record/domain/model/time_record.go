@@ -104,7 +104,8 @@ func NewTimeRecord(_time time.Time, description, employeeID string) (*TimeRecord
 		EmployeeID:  employeeID,
 	}
 
-	if !utils.DateEqual(_time, time.Now()) {
+	loc := _time.Location()
+	if !utils.DateEqual(_time, time.Now().In(loc)) {
 		timeRecord.Status = PENDING
 		timeRecord.RegularTime = false
 	}
