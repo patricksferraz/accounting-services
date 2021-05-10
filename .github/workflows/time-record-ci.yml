@@ -32,7 +32,7 @@ jobs:
         DOCKER_IMAGE=ghcr.io/patricksferraz/${SERVICE}-service:${BRANCH_NAME}
         TAGS="${DOCKER_IMAGE}-${{ github.sha }},${DOCKER_IMAGE}-latest"
         echo ::set-output name=tags::${TAGS}
-        echo ::set-output name=service::./service/${SERVICE}
+        echo ::set-output name=service::${SERVICE}
 
     - name: Set up Docker Buildx
       id: buildx

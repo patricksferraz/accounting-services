@@ -5,9 +5,11 @@ import (
 	"log"
 	"net"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/repository"
+	"go.elastic.co/apm/module/apmgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gopkg.in/mgo.v2"
@@ -22,7 +24,10 @@ func StartGrpcServer(database *mgo.Database, _service pb.AuthServiceClient, port
 	timeRecordGrpcService := NewTimeRecordGrpcService(timeRecordService, interceptor)
 
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptor.Unary()),
+		grpc_middleware.WithUnaryServerChain(
+			apmgrpc.NewUnaryServerInterceptor(apmgrpc.WithRecovery()),
+			interceptor.Unary(),
+		),
 		grpc.StreamInterceptor(interceptor.Stream()),
 	)
 
