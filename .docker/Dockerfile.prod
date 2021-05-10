@@ -10,7 +10,7 @@ ENV GOARCH=amd64
 COPY . .
 
 ARG SERVICE
-RUN go build -o main $SERVICE
+RUN go build -o main ./service/$SERVICE
 
 FROM scratch AS runtime
 COPY --from=builder /go/src/main /

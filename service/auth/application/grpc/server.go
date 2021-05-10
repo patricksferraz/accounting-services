@@ -9,12 +9,15 @@ import (
 	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/external"
 	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/repository"
 	"github.com/patricksferraz/accounting-services/service/common/pb"
+	"go.elastic.co/apm/module/apmgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func StartGrpcServer(_service *external.Keycloak, port int) {
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(apmgrpc.NewUnaryServerInterceptor(apmgrpc.WithRecovery())),
+	)
 	reflection.Register(grpcServer)
 
 	authRepository := repository.NewAuthRepository(_service)

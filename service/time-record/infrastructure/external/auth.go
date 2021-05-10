@@ -7,6 +7,7 @@ import (
 	"runtime"
 
 	"github.com/joho/godotenv"
+	"go.elastic.co/apm/module/apmgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -25,7 +26,11 @@ func init() {
 
 func ConnectAuthService() (*grpc.ClientConn, error) {
 
-	conn, err := grpc.Dial(os.Getenv("AUTH_SERVICE_ADDR"), grpc.WithInsecure())
+	conn, err := grpc.Dial(
+		os.Getenv("AUTH_SERVICE_ADDR"),
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(apmgrpc.NewUnaryClientInterceptor()),
+	)
 	if err != nil {
 		return nil, err
 	}
