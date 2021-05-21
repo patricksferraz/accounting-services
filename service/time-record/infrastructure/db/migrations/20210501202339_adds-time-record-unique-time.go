@@ -1,21 +1,33 @@
 package migrations
 
 import (
-	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/repository"
-	migrate "github.com/patricksferraz/mongo-migrate"
-	"gopkg.in/mgo.v2"
+	"context"
+
+	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db/collection"
+	migrate "github.com/xakep666/mongo-migrate"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func init() {
-	index := mgo.Index{
-		Name:     "time_record_id_time_unique",
-		Key:      []string{"employee_id", "time"},
-		Unique:   true,
-		DropDups: true,
-	}
-	migrate.Register(func(db *mgo.Database) error {
-		return db.C(repository.TimeRecordCollection).EnsureIndex(index)
-	}, func(db *mgo.Database) error {
-		return db.C(repository.TimeRecordCollection).DropIndexName(index.Name)
+	opt := options.Index().SetName("time_record_id_time_unique")
+	opt.SetUnique(true)
+	keys := bson.D{primitive.E{Key: "employee_id", Value: 1}, primitive.E{Key: "time", Value: 1}}
+	index := mongo.IndexModel{Keys: keys, Options: opt}
+
+	migrate.Register(func(db *mongo.Database) error {
+		_, err := db.Collection(collection.TimeRecordCollection).Indexes().CreateOne(context.TODO(), index)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, func(db *mongo.Database) error {
+		_, err := db.Collection(collection.TimeRecordCollection).Indexes().DropOne(context.TODO(), *opt.Name)
+		if err != nil {
+			return err
+		}
+		return nil
 	})
 }

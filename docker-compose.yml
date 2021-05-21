@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: .docker/Dockerfile
+    environment:
+      ENV: dev
     ports:
       - $CLIENT_PORT:50051
     volumes:

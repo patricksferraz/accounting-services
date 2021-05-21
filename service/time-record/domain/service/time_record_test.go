@@ -10,6 +10,7 @@ import (
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/repository"
+	"github.com/patricksferraz/accounting-services/utils"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 	"syreclabs.com/go/faker"
@@ -17,16 +18,18 @@ import (
 
 func TestService_Register(t *testing.T) {
 
-	db, err := db.ConnectMongoDB()
+	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	db, err := db.NewMongo(ctx, uri, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Session.Close()
-	defer db.DropDatabase()
+	defer db.Close(ctx)
+	defer db.Database.Drop(ctx)
 
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
-	ctx := context.Background()
 
 	_time := time.Now()
 	description := faker.Lorem().Sentence(10)
@@ -47,16 +50,18 @@ func TestService_Register(t *testing.T) {
 
 func TestService_Approve(t *testing.T) {
 
-	db, err := db.ConnectMongoDB()
+	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	db, err := db.NewMongo(ctx, uri, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Session.Close()
-	defer db.DropDatabase()
+	defer db.Close(ctx)
+	defer db.Database.Drop(ctx)
 
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
-	ctx := context.Background()
 
 	_time := time.Now().AddDate(0, 0, -1)
 	description := faker.Lorem().Sentence(10)
@@ -76,16 +81,18 @@ func TestService_Approve(t *testing.T) {
 
 func TestService_Refuse(t *testing.T) {
 
-	db, err := db.ConnectMongoDB()
+	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	db, err := db.NewMongo(ctx, uri, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Session.Close()
-	defer db.DropDatabase()
+	defer db.Close(ctx)
+	defer db.Database.Drop(ctx)
 
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
-	ctx := context.Background()
 
 	_time := time.Now().AddDate(0, 0, -1)
 	description := faker.Lorem().Sentence(10)
@@ -107,16 +114,18 @@ func TestService_Refuse(t *testing.T) {
 
 func TestService_Find(t *testing.T) {
 
-	db, err := db.ConnectMongoDB()
+	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	db, err := db.NewMongo(ctx, uri, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Session.Close()
-	defer db.DropDatabase()
+	defer db.Close(ctx)
+	defer db.Database.Drop(ctx)
 
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
-	ctx := context.Background()
 
 	_time := time.Now().AddDate(0, 0, -1)
 	description := faker.Lorem().Sentence(10)
@@ -134,16 +143,18 @@ func TestService_Find(t *testing.T) {
 
 func TestService_FindAllByEmployeeID(t *testing.T) {
 
-	db, err := db.ConnectMongoDB()
+	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	db, err := db.NewMongo(ctx, uri, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Session.Close()
-	defer db.DropDatabase()
+	defer db.Close(ctx)
+	defer db.Database.Drop(ctx)
 
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
-	ctx := context.Background()
 
 	_time := time.Now()
 	description := faker.Lorem().Sentence(10)

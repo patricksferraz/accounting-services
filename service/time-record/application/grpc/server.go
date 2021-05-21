@@ -8,14 +8,14 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
+	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/repository"
 	"go.elastic.co/apm/module/apmgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"gopkg.in/mgo.v2"
 )
 
-func StartGrpcServer(database *mgo.Database, _service pb.AuthServiceClient, port int) {
+func StartGrpcServer(database *db.Mongo, _service pb.AuthServiceClient, port int) {
 
 	authService := service.NewAuthService(_service)
 	interceptor := NewAuthInterceptor(authService)

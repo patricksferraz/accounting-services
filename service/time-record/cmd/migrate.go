@@ -16,13 +16,19 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"errors"
 	"log"
+	"os"
+	"path/filepath"
+	"runtime"
 
+	"github.com/joho/godotenv"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
 	_ "github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db/migrations"
-	migrate "github.com/patricksferraz/mongo-migrate"
+	"github.com/patricksferraz/accounting-services/utils"
 	"github.com/spf13/cobra"
+	migrate "github.com/xakep666/mongo-migrate"
 )
 
 var n int
@@ -41,11 +47,12 @@ var migrateCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
-		db, err := db.ConnectMongoDB()
+		ctx := context.Background()
+		db, err := db.NewMongo(ctx, uri, dbName)
 		if err != nil {
 			log.Fatal(err)
 		}
-		migrate.SetDatabase(db)
+		migrate.SetDatabase(db.Database)
 
 		switch args[0] {
 		case "up":
@@ -66,8 +73,23 @@ var migrateCmd = &cobra.Command{
 }
 
 func init() {
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+
+	if os.Getenv("ENV") == "dev" {
+		err := godotenv.Load(basepath + "/../../../.env")
+		if err != nil {
+			log.Printf("Error loading .env files")
+		}
+	}
+
+	dUri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dDbName := utils.GetEnv("DB_NAME", "time_record_service")
+
 	rootCmd.AddCommand(migrateCmd)
 	migrateCmd.Flags().IntVarP(&n, "n", "n", migrate.AllAvailable, "amount of migrations to UP or DOWN")
+	migrateCmd.Flags().StringVarP(&uri, "uri", "u", dUri, "gRPC Server port")
+	migrateCmd.Flags().StringVarP(&dbName, "dbName", "", dDbName, "gRPC Server port")
 
 	// Here you will define your flags and configuration settings.
 

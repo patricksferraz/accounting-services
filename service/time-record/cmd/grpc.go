@@ -16,16 +16,24 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"log"
+	"os"
+	"path/filepath"
+	"runtime"
 
+	"github.com/joho/godotenv"
 	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/external"
+	"github.com/patricksferraz/accounting-services/utils"
 	"github.com/spf13/cobra"
 )
 
 var portNumber int
+var uri string
+var dbName string
 
 // grpcCmd represents the grpc command
 var grpcCmd = &cobra.Command{
@@ -33,12 +41,28 @@ var grpcCmd = &cobra.Command{
 	Short: "Run gRPC Service",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		database, err := db.ConnectMongoDB()
+		ctx := context.Background()
+		database, err := db.NewMongo(ctx, uri, dbName)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		conn, err := external.ConnectAuthService()
+		err = database.Test(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if utils.GetEnv("DB_MIGRATE", "false") == "true" {
+			err = database.Migrate()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		defer database.Close(ctx)
+
+		authServiceAddr := os.Getenv("AUTH_SERVICE_ADDR")
+		conn, err := external.ConnectAuthService(authServiceAddr)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -51,8 +75,23 @@ var grpcCmd = &cobra.Command{
 }
 
 func init() {
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+
+	if os.Getenv("ENV") == "dev" {
+		err := godotenv.Load(basepath + "/../../../.env")
+		if err != nil {
+			log.Printf("Error loading .env files")
+		}
+	}
+
+	dUri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dDbName := utils.GetEnv("DB_NAME", "time_record_service")
+
 	rootCmd.AddCommand(grpcCmd)
 	grpcCmd.Flags().IntVarP(&portNumber, "port", "p", 50051, "gRPC Server port")
+	grpcCmd.Flags().StringVarP(&uri, "uri", "u", dUri, "gRPC Server port")
+	grpcCmd.Flags().StringVarP(&dbName, "dbName", "", dDbName, "gRPC Server port")
 
 	// Here you will define your flags and configuration settings.
 
