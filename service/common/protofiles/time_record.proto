@@ -55,11 +55,13 @@ message TimeRecord {
     google.protobuf.Timestamp time = 2;
     Status status = 3;
     string description = 4;
-    bool regular_time = 5;
-    string employee_id = 6;
-    string approved_by = 7;
-    google.protobuf.Timestamp created_at = 8;
-    google.protobuf.Timestamp updated_at = 9;
+    string refused_reason = 5;
+    bool regular_time = 6;
+    string employee_id = 7;
+    string approved_by = 8;
+    string refused_by = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
 }
 
 // message ListTimeRecordsResponse {

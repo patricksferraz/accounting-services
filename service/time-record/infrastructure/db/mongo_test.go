@@ -1,20 +1,33 @@
 package db_test
 
 import (
-	"os"
+	"context"
 	"testing"
+	"time"
 
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/utils"
 	"github.com/stretchr/testify/require"
 )
 
-func TestDb_ConnectMongoDB(t *testing.T) {
+func TestDb_NewMongo(t *testing.T) {
 
-	database, err := db.ConnectMongoDB()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	database, err := db.NewMongo(ctx, uri, dbName)
 	require.Nil(t, err)
 	require.NotEmpty(t, database)
 
-	os.Setenv("DB_URI", "mongodb://1.1.1.1")
-	_, err = db.ConnectMongoDB()
+	err = database.Test(ctx)
+	require.Nil(t, err)
+
+	err = database.Close(ctx)
+	require.Nil(t, err)
+
+	uri = "mongodb://1.1.1.1"
+	database, _ = db.NewMongo(ctx, uri, dbName)
+	err = database.Test(ctx)
 	require.NotNil(t, err)
 }

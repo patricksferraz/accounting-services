@@ -21,15 +21,17 @@ func (t *TimeRecordGrpcService) RegisterTimeRecord(ctx context.Context, in *pb.R
 	}
 
 	return &pb.TimeRecord{
-		Id:          timeRecord.ID,
-		Time:        timestamppb.New(timeRecord.Time),
-		Status:      pb.TimeRecord_Status(timeRecord.Status),
-		Description: timeRecord.Description,
-		RegularTime: timeRecord.RegularTime,
-		EmployeeId:  timeRecord.EmployeeID,
-		ApprovedBy:  timeRecord.ApprovedBy,
-		CreatedAt:   timestamppb.New(timeRecord.CreatedAt),
-		UpdatedAt:   timestamppb.New(timeRecord.UpdatedAt),
+		Id:            timeRecord.ID,
+		Time:          timestamppb.New(timeRecord.Time),
+		Status:        pb.TimeRecord_Status(timeRecord.Status),
+		Description:   timeRecord.Description,
+		RefusedReason: timeRecord.RefusedReason,
+		RegularTime:   timeRecord.RegularTime,
+		EmployeeId:    timeRecord.EmployeeID,
+		ApprovedBy:    timeRecord.ApprovedBy,
+		RefusedBy:     timeRecord.RefusedBy,
+		CreatedAt:     timestamppb.New(timeRecord.CreatedAt),
+		UpdatedAt:     timestamppb.New(timeRecord.UpdatedAt),
 	}, nil
 }
 
@@ -68,15 +70,17 @@ func (t *TimeRecordGrpcService) FindTimeRecord(ctx context.Context, in *pb.FindT
 	}
 
 	return &pb.TimeRecord{
-		Id:          timeRecord.ID,
-		Time:        timestamppb.New(timeRecord.Time),
-		Status:      pb.TimeRecord_Status(timeRecord.Status),
-		Description: timeRecord.Description,
-		RegularTime: timeRecord.RegularTime,
-		EmployeeId:  timeRecord.EmployeeID,
-		ApprovedBy:  timeRecord.ApprovedBy,
-		CreatedAt:   timestamppb.New(timeRecord.CreatedAt),
-		UpdatedAt:   timestamppb.New(timeRecord.UpdatedAt),
+		Id:            timeRecord.ID,
+		Time:          timestamppb.New(timeRecord.Time),
+		Status:        pb.TimeRecord_Status(timeRecord.Status),
+		Description:   timeRecord.Description,
+		RefusedReason: timeRecord.RefusedReason,
+		RegularTime:   timeRecord.RegularTime,
+		EmployeeId:    timeRecord.EmployeeID,
+		ApprovedBy:    timeRecord.ApprovedBy,
+		RefusedBy:     timeRecord.RefusedBy,
+		CreatedAt:     timestamppb.New(timeRecord.CreatedAt),
+		UpdatedAt:     timestamppb.New(timeRecord.UpdatedAt),
 	}, nil
 }
 
@@ -88,15 +92,17 @@ func (t *TimeRecordGrpcService) SearchTimeRecords(in *pb.SearchTimeRecordsReques
 
 	for _, timeRecord := range timeRecords {
 		stream.Send(&pb.TimeRecord{
-			Id:          timeRecord.ID,
-			Time:        timestamppb.New(timeRecord.Time),
-			Status:      pb.TimeRecord_Status(timeRecord.Status),
-			Description: timeRecord.Description,
-			RegularTime: timeRecord.RegularTime,
-			EmployeeId:  timeRecord.EmployeeID,
-			ApprovedBy:  timeRecord.ApprovedBy,
-			CreatedAt:   timestamppb.New(timeRecord.CreatedAt),
-			UpdatedAt:   timestamppb.New(timeRecord.UpdatedAt),
+			Id:            timeRecord.ID,
+			Time:          timestamppb.New(timeRecord.Time),
+			Status:        pb.TimeRecord_Status(timeRecord.Status),
+			Description:   timeRecord.Description,
+			RefusedReason: timeRecord.RefusedReason,
+			RegularTime:   timeRecord.RegularTime,
+			EmployeeId:    timeRecord.EmployeeID,
+			ApprovedBy:    timeRecord.ApprovedBy,
+			RefusedBy:     timeRecord.RefusedBy,
+			CreatedAt:     timestamppb.New(timeRecord.CreatedAt),
+			UpdatedAt:     timestamppb.New(timeRecord.UpdatedAt),
 		})
 	}
 
@@ -111,15 +117,17 @@ func (t *TimeRecordGrpcService) ListTimeRecords(in *pb.ListTimeRecordsRequest, s
 
 	for _, timeRecord := range timeRecords {
 		stream.Send(&pb.TimeRecord{
-			Id:          timeRecord.ID,
-			Time:        timestamppb.New(timeRecord.Time),
-			Status:      pb.TimeRecord_Status(timeRecord.Status),
-			Description: timeRecord.Description,
-			RegularTime: timeRecord.RegularTime,
-			EmployeeId:  timeRecord.EmployeeID,
-			ApprovedBy:  timeRecord.ApprovedBy,
-			CreatedAt:   timestamppb.New(timeRecord.CreatedAt),
-			UpdatedAt:   timestamppb.New(timeRecord.UpdatedAt),
+			Id:            timeRecord.ID,
+			Time:          timestamppb.New(timeRecord.Time),
+			Status:        pb.TimeRecord_Status(timeRecord.Status),
+			Description:   timeRecord.Description,
+			RefusedReason: timeRecord.RefusedReason,
+			RegularTime:   timeRecord.RegularTime,
+			EmployeeId:    timeRecord.EmployeeID,
+			ApprovedBy:    timeRecord.ApprovedBy,
+			RefusedBy:     timeRecord.RefusedBy,
+			CreatedAt:     timestamppb.New(timeRecord.CreatedAt),
+			UpdatedAt:     timestamppb.New(timeRecord.UpdatedAt),
 		})
 	}
 

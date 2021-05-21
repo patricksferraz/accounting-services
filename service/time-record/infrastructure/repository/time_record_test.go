@@ -8,6 +8,7 @@ import (
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/repository"
+	"github.com/patricksferraz/accounting-services/utils"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 	"syreclabs.com/go/faker"
@@ -15,9 +16,11 @@ import (
 
 func TestRepository_Register(t *testing.T) {
 
-	_db, _ := db.ConnectMongoDB()
-	repository := repository.NewTimeRecordRepositoryDb(_db)
 	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	_db, _ := db.NewMongo(ctx, uri, dbName)
+	repository := repository.NewTimeRecordRepositoryDb(_db)
 
 	now := time.Now()
 	description := faker.Lorem().Sentence(10)
@@ -30,9 +33,11 @@ func TestRepository_Register(t *testing.T) {
 
 func TestRepository_Save(t *testing.T) {
 
-	_db, _ := db.ConnectMongoDB()
-	repository := repository.NewTimeRecordRepositoryDb(_db)
 	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	_db, _ := db.NewMongo(ctx, uri, dbName)
+	repository := repository.NewTimeRecordRepositoryDb(_db)
 
 	now := time.Now()
 	description := faker.Lorem().Sentence(10)
@@ -48,9 +53,11 @@ func TestRepository_Save(t *testing.T) {
 
 func TestRepository_Find(t *testing.T) {
 
-	_db, _ := db.ConnectMongoDB()
-	repository := repository.NewTimeRecordRepositoryDb(_db)
 	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	_db, _ := db.NewMongo(ctx, uri, dbName)
+	repository := repository.NewTimeRecordRepositoryDb(_db)
 
 	// NOTE: time.Time is in nanoseconds and mongodb in milliseconds
 	y, m, d := time.Now().Date()
@@ -76,9 +83,11 @@ func TestRepository_Find(t *testing.T) {
 
 func TestRepository_FindAllByEmployeeID(t *testing.T) {
 
-	_db, _ := db.ConnectMongoDB()
-	repository := repository.NewTimeRecordRepositoryDb(_db)
 	ctx := context.Background()
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	_db, _ := db.NewMongo(ctx, uri, dbName)
+	repository := repository.NewTimeRecordRepositoryDb(_db)
 
 	// NOTE: time.Time is in nanoseconds and mongodb in milliseconds
 	y, m, d := time.Now().Date()

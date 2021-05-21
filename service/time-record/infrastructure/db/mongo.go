@@ -1,46 +1,59 @@
 package db
 
 import (
-	"log"
-	"os"
-	"path/filepath"
-	"runtime"
+	"context"
 
-	"github.com/joho/godotenv"
 	_ "github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db/migrations"
-	"github.com/patricksferraz/accounting-services/utils"
-	migrate "github.com/patricksferraz/mongo-migrate"
-	mgo "gopkg.in/mgo.v2"
+	migrate "github.com/xakep666/mongo-migrate"
+	"go.elastic.co/apm/module/apmmongo"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-// TODO: Adds cover test
-func init() {
-	_, b, _, _ := runtime.Caller(0)
-	basepath := filepath.Dir(b)
-
-	if os.Getenv("ENV") == "dev" {
-		err := godotenv.Load(basepath + "/../../../../.env")
-		if err != nil {
-			log.Printf("Error loading .env files")
-		}
-	}
+type Mongo struct {
+	Database *mongo.Database
 }
 
-func ConnectMongoDB() (*mgo.Database, error) {
-	var db *mgo.Database
+func (m *Mongo) Connect(ctx context.Context, uri string, database string) error {
+	client, err := mongo.Connect(
+		ctx,
+		options.Client().ApplyURI(uri),
+		options.Client().SetMonitor(apmmongo.CommandMonitor()),
+	)
+	if err != nil {
+		return err
+	}
 
-	session, err := mgo.Dial(utils.GetEnv("DB_URI", "localhost"))
+	m.Database = client.Database(database)
+	return nil
+}
+
+func (m *Mongo) Close(ctx context.Context) error {
+	err := m.Database.Client().Disconnect(ctx)
+	return err
+}
+
+func (m *Mongo) Test(ctx context.Context) error {
+	err := m.Database.Client().Ping(ctx, readpref.Primary())
+	return err
+}
+
+func (m *Mongo) Migrate() error {
+	migrate.SetDatabase(m.Database)
+	if err := migrate.Up(migrate.AllAvailable); err != nil {
+		return err
+	}
+	return nil
+}
+
+func NewMongo(ctx context.Context, uri, dbName string) (*Mongo, error) {
+	mongo := &Mongo{}
+
+	err := mongo.Connect(ctx, uri, dbName)
 	if err != nil {
 		return nil, err
 	}
-	db = session.DB(utils.GetEnv("DB_NAME", "time_record_service"))
 
-	if utils.GetEnv("DB_MIGRATE", "false") == "true" {
-		migrate.SetDatabase(db)
-		if err := migrate.Up(migrate.AllAvailable); err != nil {
-			return nil, err
-		}
-	}
-
-	return db, nil
+	return mongo, nil
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
 	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/repository"
+	"github.com/patricksferraz/accounting-services/utils"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -36,18 +37,20 @@ func TestGrpc_Register(t *testing.T) {
 		},
 	}
 
-	db, err := db.ConnectMongoDB()
+	ctx := new(context.Context)
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	db, err := db.NewMongo(*ctx, uri, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Session.Close()
-	defer db.DropDatabase()
+	defer db.Close(*ctx)
+	defer db.Database.Drop(*ctx)
 
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
-	ctx := new(context.Context)
 	reqRegister := &pb.RegisterTimeRecordRequest{
 		Time:        timestamppb.Now(),
 		Description: faker.Lorem().Sentence(10),
@@ -75,18 +78,20 @@ func TestGrpc_Approve(t *testing.T) {
 		},
 	}
 
-	db, err := db.ConnectMongoDB()
+	ctx := new(context.Context)
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	db, err := db.NewMongo(*ctx, uri, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Session.Close()
-	defer db.DropDatabase()
+	defer db.Close(*ctx)
+	defer db.Database.Drop(*ctx)
 
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
-	ctx := new(context.Context)
 	reqRegister := &pb.RegisterTimeRecordRequest{
 		Time:        timestamppb.New(time.Now().AddDate(0, 0, -1)),
 		Description: faker.Lorem().Sentence(10),
@@ -111,18 +116,20 @@ func TestGrpc_Find(t *testing.T) {
 		},
 	}
 
-	db, err := db.ConnectMongoDB()
+	ctx := new(context.Context)
+	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dbName := utils.GetEnv("DB_NAME", "test")
+	db, err := db.NewMongo(*ctx, uri, dbName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Session.Close()
-	defer db.DropDatabase()
+	defer db.Close(*ctx)
+	defer db.Database.Drop(*ctx)
 
 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
-	ctx := new(context.Context)
 	reqRegister := &pb.RegisterTimeRecordRequest{
 		Time:        timestamppb.Now(),
 		Description: faker.Lorem().Sentence(10),
