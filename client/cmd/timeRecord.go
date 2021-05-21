@@ -256,6 +256,7 @@ func init() {
 	timeRecordRefuseCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")
 	timeRecordRefuseCmd.Flags().StringVarP(&password, "password", "p", defaultPass, "Password for login in Auth Service")
 	timeRecordRefuseCmd.MarkFlagRequired("id")
+	timeRecordRefuseCmd.MarkFlagRequired("refusedReason")
 
 	timeRecordApproveCmd.Flags().StringVarP(&id, "id", "i", "", "Time record id to approve")
 	timeRecordApproveCmd.Flags().StringVarP(&username, "username", "u", defaultUser, "Username for login in Auth Service")

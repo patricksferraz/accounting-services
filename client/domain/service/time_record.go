@@ -27,12 +27,14 @@ func (t *TimeRecordService) Register(ctx context.Context, _time time.Time, descr
 	}
 
 	tr := &trmodel.TimeRecord{
-		Time:        res.Time.AsTime(),
-		Status:      trmodel.TimeRecordStatus(res.Status),
-		Description: res.Description,
-		RegularTime: res.RegularTime,
-		EmployeeID:  res.EmployeeId,
-		ApprovedBy:  res.ApprovedBy,
+		Time:          res.Time.AsTime(),
+		Status:        trmodel.TimeRecordStatus(res.Status),
+		Description:   res.Description,
+		RefusedReason: res.RefusedReason,
+		RegularTime:   res.RegularTime,
+		EmployeeID:    res.EmployeeId,
+		ApprovedBy:    res.ApprovedBy,
+		RefusedBy:     res.RefusedBy,
 	}
 	tr.ID = res.Id
 	tr.CreatedAt = res.CreatedAt.AsTime()
@@ -85,12 +87,14 @@ func (t *TimeRecordService) Find(ctx context.Context, id string) (*trmodel.TimeR
 	}
 
 	tr := &trmodel.TimeRecord{
-		Time:        res.Time.AsTime(),
-		Status:      trmodel.TimeRecordStatus(res.Status),
-		Description: res.Description,
-		RegularTime: res.RegularTime,
-		EmployeeID:  res.EmployeeId,
-		ApprovedBy:  res.ApprovedBy,
+		Time:          res.Time.AsTime(),
+		Status:        trmodel.TimeRecordStatus(res.Status),
+		Description:   res.Description,
+		RefusedReason: res.RefusedReason,
+		RegularTime:   res.RegularTime,
+		EmployeeID:    res.EmployeeId,
+		ApprovedBy:    res.ApprovedBy,
+		RefusedBy:     res.RefusedBy,
 	}
 	tr.ID = res.Id
 	tr.CreatedAt = res.CreatedAt.AsTime()
@@ -123,12 +127,14 @@ func (t *TimeRecordService) SearchTimeRecords(ctx context.Context, employeeID st
 		}
 
 		tr := &trmodel.TimeRecord{
-			Time:        res.Time.AsTime(),
-			Status:      trmodel.TimeRecordStatus(res.Status),
-			Description: res.Description,
-			RegularTime: res.RegularTime,
-			EmployeeID:  res.EmployeeId,
-			ApprovedBy:  res.ApprovedBy,
+			Time:          res.Time.AsTime(),
+			Status:        trmodel.TimeRecordStatus(res.Status),
+			Description:   res.Description,
+			RefusedReason: res.RefusedReason,
+			RegularTime:   res.RegularTime,
+			EmployeeID:    res.EmployeeId,
+			ApprovedBy:    res.ApprovedBy,
+			RefusedBy:     res.RefusedBy,
 		}
 		tr.ID = res.Id
 		tr.CreatedAt = res.CreatedAt.AsTime()
@@ -160,12 +166,14 @@ func (t *TimeRecordService) ListTimeRecords(ctx context.Context, fromDate, toDat
 		}
 
 		tr := &trmodel.TimeRecord{
-			Time:        res.Time.AsTime(),
-			Status:      trmodel.TimeRecordStatus(res.Status),
-			Description: res.Description,
-			RegularTime: res.RegularTime,
-			EmployeeID:  res.EmployeeId,
-			ApprovedBy:  res.ApprovedBy,
+			Time:          res.Time.AsTime(),
+			Status:        trmodel.TimeRecordStatus(res.Status),
+			Description:   res.Description,
+			RefusedReason: res.RefusedReason,
+			RegularTime:   res.RegularTime,
+			EmployeeID:    res.EmployeeId,
+			ApprovedBy:    res.ApprovedBy,
+			RefusedBy:     res.RefusedBy,
 		}
 		tr.ID = res.Id
 		tr.CreatedAt = res.CreatedAt.AsTime()
