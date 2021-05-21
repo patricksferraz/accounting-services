@@ -20,6 +20,7 @@ services:
       dockerfile: .docker/Dockerfile
     environment:
       ENV: dev
+      ELASTIC_APM_SERVICE_NAME: 'auth'
     ports:
       - $AUTH_API_PORT:50051
     volumes:
@@ -69,6 +70,7 @@ services:
       dockerfile: .docker/Dockerfile
     environment:
       ENV: dev
+      ELASTIC_APM_SERVICE_NAME: 'time-record'
     ports:
       - $TIME_RECORD_API_PORT:50051
     volumes:
