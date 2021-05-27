@@ -33,7 +33,7 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 
 func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*JWT, error) {
 	out := new(JWT)
-	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.AuthService/Login", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/github.com.c4ut.accountingServices.AuthService/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 
 func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*JWT, error) {
 	out := new(JWT)
-	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.AuthService/RefreshToken", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/github.com.c4ut.accountingServices.AuthService/RefreshToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *authServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRe
 
 func (c *authServiceClient) FindEmployeeClaimsByToken(ctx context.Context, in *FindEmployeeClaimsByTokenRequest, opts ...grpc.CallOption) (*EmployeeClaims, error) {
 	out := new(EmployeeClaims)
-	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.AuthService/FindEmployeeClaimsByToken", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/github.com.c4ut.accountingServices.AuthService/FindEmployeeClaimsByToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func _AuthService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.com.patricksferraz.accountingServices.AuthService/Login",
+		FullMethod: "/github.com.c4ut.accountingServices.AuthService/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).Login(ctx, req.(*LoginRequest))
@@ -122,7 +122,7 @@ func _AuthService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.com.patricksferraz.accountingServices.AuthService/RefreshToken",
+		FullMethod: "/github.com.c4ut.accountingServices.AuthService/RefreshToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).RefreshToken(ctx, req.(*RefreshTokenRequest))
@@ -140,7 +140,7 @@ func _AuthService_FindEmployeeClaimsByToken_Handler(srv interface{}, ctx context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.com.patricksferraz.accountingServices.AuthService/FindEmployeeClaimsByToken",
+		FullMethod: "/github.com.c4ut.accountingServices.AuthService/FindEmployeeClaimsByToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).FindEmployeeClaimsByToken(ctx, req.(*FindEmployeeClaimsByTokenRequest))
@@ -152,7 +152,7 @@ func _AuthService_FindEmployeeClaimsByToken_Handler(srv interface{}, ctx context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuthService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "github.com.patricksferraz.accountingServices.AuthService",
+	ServiceName: "github.com.c4ut.accountingServices.AuthService",
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

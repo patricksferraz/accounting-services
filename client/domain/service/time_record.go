@@ -5,9 +5,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/patricksferraz/accounting-services/client/domain/model"
-	"github.com/patricksferraz/accounting-services/service/common/pb"
-	trmodel "github.com/patricksferraz/accounting-services/service/time-record/domain/model"
+	"github.com/c4ut/accounting-services/client/domain/model"
+	"github.com/c4ut/accounting-services/service/common/pb"
+	trmodel "github.com/c4ut/accounting-services/service/time-record/domain/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

@@ -36,7 +36,7 @@ func NewTimeRecordServiceClient(cc grpc.ClientConnInterface) TimeRecordServiceCl
 
 func (c *timeRecordServiceClient) RegisterTimeRecord(ctx context.Context, in *RegisterTimeRecordRequest, opts ...grpc.CallOption) (*TimeRecord, error) {
 	out := new(TimeRecord)
-	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.TimeRecordService/RegisterTimeRecord", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/github.com.c4ut.accountingServices.TimeRecordService/RegisterTimeRecord", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *timeRecordServiceClient) RegisterTimeRecord(ctx context.Context, in *Re
 
 func (c *timeRecordServiceClient) ApproveTimeRecord(ctx context.Context, in *ApproveTimeRecordRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	out := new(StatusResponse)
-	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.TimeRecordService/ApproveTimeRecord", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/github.com.c4ut.accountingServices.TimeRecordService/ApproveTimeRecord", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *timeRecordServiceClient) ApproveTimeRecord(ctx context.Context, in *App
 
 func (c *timeRecordServiceClient) RefuseTimeRecord(ctx context.Context, in *RefuseTimeRecordRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	out := new(StatusResponse)
-	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.TimeRecordService/RefuseTimeRecord", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/github.com.c4ut.accountingServices.TimeRecordService/RefuseTimeRecord", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (c *timeRecordServiceClient) RefuseTimeRecord(ctx context.Context, in *Refu
 
 func (c *timeRecordServiceClient) FindTimeRecord(ctx context.Context, in *FindTimeRecordRequest, opts ...grpc.CallOption) (*TimeRecord, error) {
 	out := new(TimeRecord)
-	err := c.cc.Invoke(ctx, "/github.com.patricksferraz.accountingServices.TimeRecordService/FindTimeRecord", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/github.com.c4ut.accountingServices.TimeRecordService/FindTimeRecord", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (c *timeRecordServiceClient) FindTimeRecord(ctx context.Context, in *FindTi
 }
 
 func (c *timeRecordServiceClient) SearchTimeRecords(ctx context.Context, in *SearchTimeRecordsRequest, opts ...grpc.CallOption) (TimeRecordService_SearchTimeRecordsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &TimeRecordService_ServiceDesc.Streams[0], "/github.com.patricksferraz.accountingServices.TimeRecordService/SearchTimeRecords", opts...)
+	stream, err := c.cc.NewStream(ctx, &TimeRecordService_ServiceDesc.Streams[0], "/github.com.c4ut.accountingServices.TimeRecordService/SearchTimeRecords", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (x *timeRecordServiceSearchTimeRecordsClient) Recv() (*TimeRecord, error) {
 }
 
 func (c *timeRecordServiceClient) ListTimeRecords(ctx context.Context, in *ListTimeRecordsRequest, opts ...grpc.CallOption) (TimeRecordService_ListTimeRecordsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &TimeRecordService_ServiceDesc.Streams[1], "/github.com.patricksferraz.accountingServices.TimeRecordService/ListTimeRecords", opts...)
+	stream, err := c.cc.NewStream(ctx, &TimeRecordService_ServiceDesc.Streams[1], "/github.com.c4ut.accountingServices.TimeRecordService/ListTimeRecords", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func _TimeRecordService_RegisterTimeRecord_Handler(srv interface{}, ctx context.
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.com.patricksferraz.accountingServices.TimeRecordService/RegisterTimeRecord",
+		FullMethod: "/github.com.c4ut.accountingServices.TimeRecordService/RegisterTimeRecord",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TimeRecordServiceServer).RegisterTimeRecord(ctx, req.(*RegisterTimeRecordRequest))
@@ -210,7 +210,7 @@ func _TimeRecordService_ApproveTimeRecord_Handler(srv interface{}, ctx context.C
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.com.patricksferraz.accountingServices.TimeRecordService/ApproveTimeRecord",
+		FullMethod: "/github.com.c4ut.accountingServices.TimeRecordService/ApproveTimeRecord",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TimeRecordServiceServer).ApproveTimeRecord(ctx, req.(*ApproveTimeRecordRequest))
@@ -228,7 +228,7 @@ func _TimeRecordService_RefuseTimeRecord_Handler(srv interface{}, ctx context.Co
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.com.patricksferraz.accountingServices.TimeRecordService/RefuseTimeRecord",
+		FullMethod: "/github.com.c4ut.accountingServices.TimeRecordService/RefuseTimeRecord",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TimeRecordServiceServer).RefuseTimeRecord(ctx, req.(*RefuseTimeRecordRequest))
@@ -246,7 +246,7 @@ func _TimeRecordService_FindTimeRecord_Handler(srv interface{}, ctx context.Cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/github.com.patricksferraz.accountingServices.TimeRecordService/FindTimeRecord",
+		FullMethod: "/github.com.c4ut.accountingServices.TimeRecordService/FindTimeRecord",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TimeRecordServiceServer).FindTimeRecord(ctx, req.(*FindTimeRecordRequest))
@@ -300,7 +300,7 @@ func (x *timeRecordServiceListTimeRecordsServer) Send(m *TimeRecord) error {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TimeRecordService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "github.com.patricksferraz.accountingServices.TimeRecordService",
+	ServiceName: "github.com.c4ut.accountingServices.TimeRecordService",
 	HandlerType: (*TimeRecordServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

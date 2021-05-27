@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
-	"github.com/patricksferraz/accounting-services/service/time-record/domain/service"
+	"github.com/c4ut/accounting-services/service/time-record/domain/model"
+	"github.com/c4ut/accounting-services/service/time-record/domain/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

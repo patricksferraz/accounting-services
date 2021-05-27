@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package github.com.patricksferraz.accountingServices;
+package github.com.c4ut.accountingServices;
 import "google/protobuf/timestamp.proto";
 
 option go_package = "/protofiles;pb";

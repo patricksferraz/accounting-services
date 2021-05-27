@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
+	"github.com/c4ut/accounting-services/service/time-record/domain/model"
 )
 
 type TimeRecordRepositoryInterface interface {

@@ -24,11 +24,11 @@ import (
 	"runtime"
 	"time"
 
+	appgrpc "github.com/c4ut/accounting-services/client/application/grpc"
+	"github.com/c4ut/accounting-services/client/domain/service"
+	"github.com/c4ut/accounting-services/client/infrastructure/external"
+	"github.com/c4ut/accounting-services/service/common/pb"
 	"github.com/joho/godotenv"
-	appgrpc "github.com/patricksferraz/accounting-services/client/application/grpc"
-	"github.com/patricksferraz/accounting-services/client/domain/service"
-	"github.com/patricksferraz/accounting-services/client/infrastructure/external"
-	"github.com/patricksferraz/accounting-services/service/common/pb"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )

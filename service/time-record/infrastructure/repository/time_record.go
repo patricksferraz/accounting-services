@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
-	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
-	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db/collection"
+	"github.com/c4ut/accounting-services/service/time-record/domain/model"
+	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
+	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db/collection"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

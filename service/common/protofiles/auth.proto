@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package github.com.patricksferraz.accountingServices;
+package github.com.c4ut.accountingServices;
 
 option go_package = "/protofiles;pb";
 

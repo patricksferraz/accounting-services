@@ -3,7 +3,7 @@ package migrations
 import (
 	"context"
 
-	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db/collection"
+	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db/collection"
 	migrate "github.com/xakep666/mongo-migrate"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

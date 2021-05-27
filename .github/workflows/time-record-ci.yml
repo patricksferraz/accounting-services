@@ -2,9 +2,9 @@ name: Time Record - Continuous Integration (CI)
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [ time-record-service, dev-time-record-service ]
   push:
-    branches: [ main, develop ]
+    branches: [ time-record-service, dev-time-record-service ]
 
 jobs:
 
@@ -29,8 +29,13 @@ jobs:
       run: |
         SERVICE=time-record
         BRANCH_NAME=${GITHUB_REF#refs/heads/}
-        DOCKER_IMAGE=ghcr.io/patricksferraz/${SERVICE}-service:${BRANCH_NAME}
-        TAGS="${DOCKER_IMAGE}-${{ github.sha }},${DOCKER_IMAGE}-latest"
+        if [ "${BRANCH_NAME}" == "dev-${SERVICE}-service" ]; then
+          DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/${SERVICE}-service:develop-
+        fi
+        if [ "${BRANCH_NAME}" == "${SERVICE}-service" ]; then
+          DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/${SERVICE}-service:
+        fi
+        TAGS="${DOCKER_IMAGE}${{ github.sha }},${DOCKER_IMAGE}latest"
         echo ::set-output name=tags::${TAGS}
         echo ::set-output name=service::${SERVICE}
 

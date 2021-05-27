@@ -23,10 +23,10 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
+	_ "github.com/c4ut/accounting-services/service/time-record/infrastructure/db/migrations"
+	"github.com/c4ut/accounting-services/utils"
 	"github.com/joho/godotenv"
-	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
-	_ "github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db/migrations"
-	"github.com/patricksferraz/accounting-services/utils"
 	"github.com/spf13/cobra"
 	migrate "github.com/xakep666/mongo-migrate"
 )

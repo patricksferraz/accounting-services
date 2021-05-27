@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: auth
-        image: ghcr.io/patricksferraz/auth-service:develop-latest
+        image: ghcr.io/c4ut/auth-service:develop-latest
         ports:
         - containerPort: 50051
         envFrom:

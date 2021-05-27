@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
+	"github.com/c4ut/accounting-services/service/time-record/domain/model"
 	"github.com/stretchr/testify/require"
 	"syreclabs.com/go/faker"
 )

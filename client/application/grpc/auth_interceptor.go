@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/patricksferraz/accounting-services/client/domain/service"
-	authmodel "github.com/patricksferraz/accounting-services/service/auth/domain/model"
+	"github.com/c4ut/accounting-services/client/domain/service"
+	authmodel "github.com/c4ut/accounting-services/service/auth/domain/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
