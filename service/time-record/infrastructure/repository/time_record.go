@@ -7,6 +7,7 @@ import (
 	"github.com/c4ut/accounting-services/service/time-record/domain/model"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db/collection"
+	"go.elastic.co/apm"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -18,20 +19,32 @@ type TimeRecordRepositoryDb struct {
 func (t *TimeRecordRepositoryDb) Register(ctx context.Context, timeRecord *model.TimeRecord) error {
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 	_, err := collection.InsertOne(ctx, timeRecord)
-	return err
+	if err != nil {
+		apm.CaptureError(ctx, err).Send()
+		return err
+	}
+	return nil
 }
 
 func (t *TimeRecordRepositoryDb) Save(ctx context.Context, timeRecord *model.TimeRecord) error {
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 	_, err := collection.ReplaceOne(ctx, bson.M{"_id": timeRecord.ID}, timeRecord)
-	return err
+	if err != nil {
+		apm.CaptureError(ctx, err).Send()
+		return err
+	}
+	return nil
 }
 
 func (t *TimeRecordRepositoryDb) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
 	var timeRecord *model.TimeRecord
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&timeRecord)
-	return timeRecord, err
+	if err != nil {
+		apm.CaptureError(ctx, err).Send()
+		return timeRecord, err
+	}
+	return timeRecord, nil
 }
 
 func (t *TimeRecordRepositoryDb) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
@@ -53,6 +66,7 @@ func (t *TimeRecordRepositoryDb) FindAllByEmployeeID(ctx context.Context, employ
 	)
 
 	if err != nil {
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
 
@@ -60,12 +74,14 @@ func (t *TimeRecordRepositoryDb) FindAllByEmployeeID(ctx context.Context, employ
 		var timeRecord *model.TimeRecord
 		err := cur.Decode(&timeRecord)
 		if err != nil {
+			apm.CaptureError(ctx, err).Send()
 			return nil, err
 		}
 		timeRecords = append(timeRecords, timeRecord)
 	}
 
 	if err := cur.Err(); err != nil {
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
 

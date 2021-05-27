@@ -16,6 +16,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	github.com/xakep666/mongo-migrate v0.2.1
+	go.elastic.co/apm v1.11.0
 	go.elastic.co/apm/module/apmgrpc v1.11.0
 	go.elastic.co/apm/module/apmmongo v1.11.0
 	go.mongodb.org/mongo-driver v1.5.2

@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/c4ut/accounting-services/service/time-record/infrastructure/db/migrations"
 	migrate "github.com/xakep666/mongo-migrate"
+	"go.elastic.co/apm"
 	"go.elastic.co/apm/module/apmmongo"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -22,6 +23,7 @@ func (m *Mongo) Connect(ctx context.Context, uri string, database string) error 
 		options.Client().SetMonitor(apmmongo.CommandMonitor()),
 	)
 	if err != nil {
+		apm.CaptureError(ctx, err).Send()
 		return err
 	}
 
@@ -31,12 +33,20 @@ func (m *Mongo) Connect(ctx context.Context, uri string, database string) error 
 
 func (m *Mongo) Close(ctx context.Context) error {
 	err := m.Database.Client().Disconnect(ctx)
-	return err
+	if err != nil {
+		apm.CaptureError(ctx, err).Send()
+		return err
+	}
+	return nil
 }
 
 func (m *Mongo) Test(ctx context.Context) error {
 	err := m.Database.Client().Ping(ctx, readpref.Primary())
-	return err
+	if err != nil {
+		apm.CaptureError(ctx, err).Send()
+		return err
+	}
+	return nil
 }
 
 func (m *Mongo) Migrate() error {
@@ -52,6 +62,7 @@ func NewMongo(ctx context.Context, uri, dbName string) (*Mongo, error) {
 
 	err := mongo.Connect(ctx, uri, dbName)
 	if err != nil {
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
 
