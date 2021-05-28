@@ -14,4 +14,4 @@ RUN go build -o main ./service/$SERVICE
 
 FROM scratch AS runtime
 COPY --from=builder /go/src/main /
-ENTRYPOINT ["./main", "grpc"]
+ENTRYPOINT ["./main", "all"]
