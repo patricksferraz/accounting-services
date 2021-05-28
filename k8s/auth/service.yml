@@ -7,5 +7,9 @@ spec:
   selector:
     app: auth
   ports:
-  - port: 50051
+  - name: grpc
+    port: 50051
     targetPort: 50051
+  - name: rest
+    port: 8080
+    targetPort: 8080
