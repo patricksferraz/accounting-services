@@ -189,7 +189,8 @@ __Prerequisites__:
 
   ```sh
   # .env
-  AUTH_API_PORT=50051
+  AUTH_GRPC_PORT=50051
+  AUTH_REST_PORT=8088
 
   AUTHDB_DB=keycloak
   AUTHDB_USERNAME=keycloak
@@ -209,7 +210,6 @@ __Prerequisites__:
   DB_URI=mongodb://admin:admin123@trdb:27017
   DB_NAME=time_record_service
   DB_PORT=27018
-  DB_TEST=true # for unit and integration tests
   DB_MIGRATE=true # to migrate "up" at database startup
 
   AUTH_SERVICE_ADDR=auth-service:50051

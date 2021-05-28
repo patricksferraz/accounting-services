@@ -16,7 +16,10 @@ spec:
       - name: auth
         image: ghcr.io/c4ut/auth-service:develop-latest
         ports:
-        - containerPort: 50051
+        - name: grpc
+          containerPort: 50051
+        - name: rest
+          containerPort: 8080
         envFrom:
           - secretRef:
               name: auth-secret

@@ -9,15 +9,15 @@ func init() {
 }
 
 type JWT struct {
-	AccessToken      string `json:"access_token" valid:"notnull"`
-	IDToken          string `json:"id_token" valid:"notnull"`
-	ExpiresIn        int    `json:"expires_in" valid:"notnull"`
+	AccessToken      string `json:"access_token,omitempty" valid:"notnull"`
+	IDToken          string `json:"id_token,omitempty" valid:"notnull"`
+	ExpiresIn        int    `json:"expires_in,omitempty" valid:"notnull"`
 	RefreshExpiresIn int    `json:"refresh_expires_in,omitempty" valid:"notnull"`
-	RefreshToken     string `json:"refresh_token" valid:"notnull"`
-	TokenType        string `json:"token_type" valid:"notnull"`
-	NotBeforePolicy  int    `json:"not_before_policy" valid:"notnull"`
-	SessionState     string `json:"session_state" valid:"notnull"`
-	Scope            string `json:"scope" valid:"notnull"`
+	RefreshToken     string `json:"refresh_token,omitempty" valid:"notnull"`
+	TokenType        string `json:"token_type,omitempty" valid:"notnull"`
+	NotBeforePolicy  int    `json:"not_before_policy,omitempty" valid:"notnull"`
+	SessionState     string `json:"session_state,omitempty" valid:"notnull"`
+	Scope            string `json:"scope,omitempty" valid:"notnull"`
 }
 
 func (t *JWT) isValid() error {

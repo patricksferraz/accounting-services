@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/Nerzal/gocloak/v8 v8.3.0
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
+	github.com/gin-gonic/gin v1.7.2
 	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/joho/godotenv v1.3.0
@@ -16,6 +17,8 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	github.com/xakep666/mongo-migrate v0.2.1
+	go.elastic.co/apm v1.12.0
+	go.elastic.co/apm/module/apmgin v1.12.0
 	go.elastic.co/apm/module/apmgrpc v1.11.0
 	go.elastic.co/apm/module/apmmongo v1.11.0
 	go.mongodb.org/mongo-driver v1.5.2
