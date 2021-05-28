@@ -2,11 +2,12 @@ package grpc
 
 import (
 	"context"
-	"log"
 
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/c4ut/accounting-services/service/time-record/domain/model"
 	"github.com/c4ut/accounting-services/service/time-record/domain/service"
 	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -23,10 +24,12 @@ func (a *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 		span, ctx := apm.StartSpan(ctx, "Unary", "application")
 		defer span.End()
 
-		log.Println("--> unary interceptor: ", info.FullMethod)
+		log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+		log.WithField("method", info.FullMethod).Info("unary interceptor")
 
 		err := a.authorize(ctx, info.FullMethod)
 		if err != nil {
+			log.WithError(err).Error("failed to authorize")
 			apm.CaptureError(ctx, err).Send()
 			return nil, err
 		}
@@ -40,10 +43,12 @@ func (a *AuthInterceptor) Stream() grpc.StreamServerInterceptor {
 		span, ctx := apm.StartSpan(ss.Context(), "Stream", "application")
 		defer span.End()
 
-		log.Println("--> stream interceptor: ", info.FullMethod)
+		log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+		log.WithField("method", info.FullMethod).Info("stream interceptor")
 
 		err := a.authorize(ctx, info.FullMethod)
 		if err != nil {
+			log.WithError(err).Error("failed to authorize")
 			apm.CaptureError(ctx, err).Send()
 			return err
 		}
@@ -56,9 +61,12 @@ func (a *AuthInterceptor) authorize(ctx context.Context, method string) error {
 	span, ctx := apm.StartSpan(ctx, "authorize", "application")
 	defer span.End()
 
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		err := status.Error(codes.Unauthenticated, "metadata is not provided")
+		log.WithError(err).Error("metadata is not provided")
 		apm.CaptureError(ctx, err).Send()
 		return err
 	}
@@ -66,6 +74,7 @@ func (a *AuthInterceptor) authorize(ctx context.Context, method string) error {
 	values := md["authorization"]
 	if len(values) == 0 {
 		err := status.Error(codes.Unauthenticated, "authorization token is not provided")
+		log.WithError(err).Error("authorization token is not provided")
 		apm.CaptureError(ctx, err).Send()
 		return err
 	}
@@ -74,19 +83,23 @@ func (a *AuthInterceptor) authorize(ctx context.Context, method string) error {
 	claims, err := a.AuthService.Verify(ctx, accessToken)
 	if err != nil {
 		err := status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
+		log.WithError(err).Errorf("access token is invalid: %v", err)
 		apm.CaptureError(ctx, err).Send()
 		return err
 	}
+	log.WithField("claims", claims).Info("employee claims")
 
 	a.EmployeeClaims = claims
 
 	for _, role := range claims.Roles {
 		if role == method {
+			log.WithField("method", method).Info("authorized access")
 			return nil
 		}
 	}
 
 	err = status.Error(codes.PermissionDenied, "no permission to access this RPC")
+	log.WithError(err).Error("no permission to access this RPC")
 	apm.CaptureError(ctx, err).Send()
 	return err
 }
