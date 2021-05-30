@@ -18,6 +18,10 @@ jobs:
         image: mongo:${{ matrix.mongodb-version }}
         ports:
           - 27017:27017
+      apm-server:
+        image: docker.elastic.co/apm/apm-server:7.12.1
+        ports:
+          - 8200:8200
 
     runs-on: ubuntu-latest
     steps:

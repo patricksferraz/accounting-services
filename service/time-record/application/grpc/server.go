@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 
-	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/c4ut/accounting-services/service/common/pb"
 	"github.com/c4ut/accounting-services/service/time-record/domain/service"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
@@ -38,13 +37,13 @@ func StartGrpcServer(database *db.Mongo, _service pb.AuthServiceClient, port int
 	address := fmt.Sprintf("0.0.0.0:%d", port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
-		logger.Log.Fatal("cannot start grpc server", err)
+		log.Fatal("cannot start grpc server", err)
 	}
 
 	log.Printf("gRPC server has been started on port %d", port)
 
 	err = grpcServer.Serve(listener)
 	if err != nil {
-		logger.Log.Fatal("cannot start grpc server", err)
+		log.Fatal("cannot start grpc server", err)
 	}
 }

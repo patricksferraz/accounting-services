@@ -28,6 +28,7 @@ type TimeRecordRestService struct {
 // @Router /timeRecord [post]
 func (t *TimeRecordRestService) RegisterTimeRecord(ctx *gin.Context) {
 	var req TimeRecordRequest
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
@@ -71,6 +72,7 @@ func (t *TimeRecordRestService) RegisterTimeRecord(ctx *gin.Context) {
 // @Router /timeRecord/{id}/approve [post]
 func (t *TimeRecordRestService) ApproveTimeRecord(ctx *gin.Context) {
 	var req IDRequest
+
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
@@ -184,6 +186,7 @@ func (t *TimeRecordRestService) RefuseTimeRecord(ctx *gin.Context) {
 // @Router /timeRecord/{id} [get]
 func (t *TimeRecordRestService) FindTimeRecord(ctx *gin.Context) {
 	var req IDRequest
+
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
