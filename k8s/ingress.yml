@@ -16,7 +16,7 @@ spec:
           service:
             name: auth-service
             port:
-              number: 50051
+              number: 8080
 
       - pathType: Prefix
         path: "/time-record"
@@ -24,4 +24,4 @@ spec:
           service:
             name: time-record-service
             port:
-              number: 50051
+              number: 8080

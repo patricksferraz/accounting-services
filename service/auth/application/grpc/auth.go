@@ -4,7 +4,10 @@ import (
 	"context"
 
 	"github.com/c4ut/accounting-services/service/auth/domain/service"
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/c4ut/accounting-services/service/common/pb"
+	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 )
 
 type AuthGrpcService struct {
@@ -13,10 +16,16 @@ type AuthGrpcService struct {
 }
 
 func (a *AuthGrpcService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.JWT, error) {
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+	log.WithField("in", in).Info("handling Login request")
+
 	jwt, err := a.AuthService.Login(ctx, in.Username, in.Password)
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return &pb.JWT{}, err
 	}
+	log.WithField("jwt", jwt).Info("JWT response")
 
 	return &pb.JWT{
 		AccessToken:      jwt.AccessToken,
@@ -32,10 +41,16 @@ func (a *AuthGrpcService) Login(ctx context.Context, in *pb.LoginRequest) (*pb.J
 }
 
 func (a *AuthGrpcService) RefreshToken(ctx context.Context, in *pb.RefreshTokenRequest) (*pb.JWT, error) {
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+	log.WithField("in", in).Info("handling RefreshToken request")
+
 	jwt, err := a.AuthService.RefreshToken(ctx, in.RefreshToken)
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return &pb.JWT{}, err
 	}
+	log.WithField("jwt", jwt).Info("JWT response")
 
 	return &pb.JWT{
 		AccessToken:      jwt.AccessToken,
@@ -51,10 +66,16 @@ func (a *AuthGrpcService) RefreshToken(ctx context.Context, in *pb.RefreshTokenR
 }
 
 func (a *AuthGrpcService) FindEmployeeClaimsByToken(ctx context.Context, in *pb.FindEmployeeClaimsByTokenRequest) (*pb.EmployeeClaims, error) {
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+	log.WithField("in", in).Info("handling FindEmployeeClaimsByToken request")
+
 	employee, err := a.AuthService.FindEmployeeClaimsByToken(ctx, in.AccessToken)
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return &pb.EmployeeClaims{}, err
 	}
+	log.WithField("employeeClaims", employee).Info("employeeClaims response")
 
 	return &pb.EmployeeClaims{
 		Id:    employee.ID,

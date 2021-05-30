@@ -5,7 +5,10 @@ import (
 
 	"github.com/c4ut/accounting-services/service/auth/domain/model"
 	"github.com/c4ut/accounting-services/service/auth/infrastructure/external"
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/mitchellh/mapstructure"
+	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 )
 
 type AuthRepository struct {
@@ -13,11 +16,19 @@ type AuthRepository struct {
 }
 
 func (a *AuthRepository) Login(ctx context.Context, auth *model.Auth) (*model.JWT, error) {
+	span, ctx := apm.StartSpan(ctx, "Login", "repository")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+	log.WithField("auth", auth).Info("Auth attributes")
 
 	jwt, err := a.Service.Client.Login(ctx, a.Service.ClientID, a.Service.ClientSecret, a.Service.Realm, auth.Username, auth.Password)
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
+	log.WithField("jwt", jwt).Info("jwt response")
 
 	return &model.JWT{
 		AccessToken:      jwt.AccessToken,
@@ -33,11 +44,19 @@ func (a *AuthRepository) Login(ctx context.Context, auth *model.Auth) (*model.JW
 }
 
 func (a *AuthRepository) RefreshToken(ctx context.Context, refreshToken string) (*model.JWT, error) {
+	span, ctx := apm.StartSpan(ctx, "RefreshToken", "repository")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+	log.WithField("refreshToken", refreshToken).Info("refreshToken attributes")
 
 	jwt, err := a.Service.Client.RefreshToken(ctx, refreshToken, a.Service.ClientID, a.Service.ClientSecret, a.Service.Realm)
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
+	log.WithField("jwt", jwt).Info("jwt response")
 
 	return &model.JWT{
 		AccessToken:      jwt.AccessToken,
@@ -53,14 +72,23 @@ func (a *AuthRepository) RefreshToken(ctx context.Context, refreshToken string) 
 }
 
 func (a *AuthRepository) FindEmployeeClaimsByToken(ctx context.Context, accessToken string) (*model.EmployeeClaims, error) {
+	span, ctx := apm.StartSpan(ctx, "FindEmployeeClaimsByToken", "repository")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+	log.WithField("accessToken", accessToken).Info("accessToken attributes")
 
 	jwt, _, err := a.Service.Client.DecodeAccessToken(ctx, accessToken, a.Service.Realm, a.Service.Audience)
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
+	log.WithField("jwt", jwt).Info("jwt decoded")
 
 	employeeClaims := new(model.EmployeeClaims)
 	mapstructure.Decode(jwt.Claims, employeeClaims)
+	log.WithField("employeeClaims", employeeClaims).Info("employeeClaims mapstructure")
 
 	type ResourceAccess struct {
 		ResourceAccess map[string]map[string][]string `mapstructure:"resource_access"`
@@ -71,6 +99,7 @@ func (a *AuthRepository) FindEmployeeClaimsByToken(ctx context.Context, accessTo
 
 	roles := ra.ResourceAccess[a.Service.ClientID]["roles"]
 	employeeClaims.Roles = roles
+	log.WithField("employeeClaims", employeeClaims).Info("employeeClaims with roles")
 
 	return employeeClaims, nil
 }

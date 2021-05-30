@@ -47,7 +47,7 @@ func TestGrpc_Register(t *testing.T) {
 	defer db.Close(*ctx)
 	defer db.Database.Drop(*ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordRepository := repository.NewTimeRecordRepository(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
@@ -88,7 +88,7 @@ func TestGrpc_Approve(t *testing.T) {
 	defer db.Close(*ctx)
 	defer db.Database.Drop(*ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordRepository := repository.NewTimeRecordRepository(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
@@ -126,7 +126,7 @@ func TestGrpc_Find(t *testing.T) {
 	defer db.Close(*ctx)
 	defer db.Database.Drop(*ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordRepository := repository.NewTimeRecordRepository(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
@@ -172,7 +172,7 @@ func TestGrpc_Find(t *testing.T) {
 // 	defer db.Session.Close()
 // 	defer db.DropDatabase()
 
-// 	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+// 	timeRecordRepository := repository.NewTimeRecordRepository(db)
 // 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 // 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
