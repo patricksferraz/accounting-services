@@ -16,35 +16,35 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/c4ut/accounting-services/service/auth/application/grpc"
+	"github.com/c4ut/accounting-services/service/auth/application/rest"
 	"github.com/c4ut/accounting-services/service/auth/infrastructure/external"
 	"github.com/spf13/cobra"
 )
 
-var grpcPort int
+var restPort int
 
-// grpcCmd represents the grpc command
-var grpcCmd = &cobra.Command{
-	Use:   "grpc",
-	Short: "Run gRPC Service",
+// restCmd represents the rest command
+var restCmd = &cobra.Command{
+	Use:   "rest",
+	Short: "Run rest Service",
 
 	Run: func(cmd *cobra.Command, args []string) {
 		service := external.ConnectKeycloak()
-		grpc.StartGrpcServer(service, grpcPort)
+		rest.StartRestServer(service, restPort)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(grpcCmd)
-	grpcCmd.Flags().IntVarP(&grpcPort, "port", "p", 50051, "gRPC Server port")
+	rootCmd.AddCommand(restCmd)
+	restCmd.Flags().IntVarP(&restPort, "port", "p", 8080, "rest server port")
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// grpcCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// restCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// grpcCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// restCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

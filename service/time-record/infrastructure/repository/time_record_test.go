@@ -20,7 +20,7 @@ func TestRepository_Register(t *testing.T) {
 	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
 	dbName := utils.GetEnv("DB_NAME", "test")
 	_db, _ := db.NewMongo(ctx, uri, dbName)
-	repository := repository.NewTimeRecordRepositoryDb(_db)
+	repository := repository.NewTimeRecordRepository(_db)
 
 	now := time.Now()
 	description := faker.Lorem().Sentence(10)
@@ -37,7 +37,7 @@ func TestRepository_Save(t *testing.T) {
 	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
 	dbName := utils.GetEnv("DB_NAME", "test")
 	_db, _ := db.NewMongo(ctx, uri, dbName)
-	repository := repository.NewTimeRecordRepositoryDb(_db)
+	repository := repository.NewTimeRecordRepository(_db)
 
 	now := time.Now()
 	description := faker.Lorem().Sentence(10)
@@ -57,7 +57,7 @@ func TestRepository_Find(t *testing.T) {
 	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
 	dbName := utils.GetEnv("DB_NAME", "test")
 	_db, _ := db.NewMongo(ctx, uri, dbName)
-	repository := repository.NewTimeRecordRepositoryDb(_db)
+	repository := repository.NewTimeRecordRepository(_db)
 
 	// NOTE: time.Time is in nanoseconds and mongodb in milliseconds
 	y, m, d := time.Now().Date()
@@ -87,7 +87,7 @@ func TestRepository_FindAllByEmployeeID(t *testing.T) {
 	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
 	dbName := utils.GetEnv("DB_NAME", "test")
 	_db, _ := db.NewMongo(ctx, uri, dbName)
-	repository := repository.NewTimeRecordRepositoryDb(_db)
+	repository := repository.NewTimeRecordRepository(_db)
 
 	// NOTE: time.Time is in nanoseconds and mongodb in milliseconds
 	y, m, d := time.Now().Date()

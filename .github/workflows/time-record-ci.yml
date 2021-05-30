@@ -35,7 +35,7 @@ jobs:
         if [ "${BRANCH_NAME}" == "${SERVICE}-service" ]; then
           DOCKER_IMAGE=ghcr.io/${{ github.repository_owner }}/${SERVICE}-service:
         fi
-        TAGS="${DOCKER_IMAGE}${{ github.sha }},${DOCKER_IMAGE}latest"
+        TAGS="${DOCKER_IMAGE}$(git rev-parse --short HEAD),${DOCKER_IMAGE}latest"
         echo ::set-output name=tags::${TAGS}
         echo ::set-output name=service::${SERVICE}
 
@@ -79,9 +79,9 @@ jobs:
         file: .docker/Dockerfile.prod
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.prep.outputs.tags }}
+        target: runtime
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache
-        target: runtime
         build-args: >
           SERVICE=${{ steps.prep.outputs.service }}
 
