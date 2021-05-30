@@ -28,7 +28,7 @@ func TestService_Register(t *testing.T) {
 	defer db.Close(ctx)
 	defer db.Database.Drop(ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordRepository := repository.NewTimeRecordRepository(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 
 	_time := time.Now()
@@ -60,7 +60,7 @@ func TestService_Approve(t *testing.T) {
 	defer db.Close(ctx)
 	defer db.Database.Drop(ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordRepository := repository.NewTimeRecordRepository(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 
 	_time := time.Now().AddDate(0, 0, -1)
@@ -91,7 +91,7 @@ func TestService_Refuse(t *testing.T) {
 	defer db.Close(ctx)
 	defer db.Database.Drop(ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordRepository := repository.NewTimeRecordRepository(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 
 	_time := time.Now().AddDate(0, 0, -1)
@@ -124,7 +124,7 @@ func TestService_Find(t *testing.T) {
 	defer db.Close(ctx)
 	defer db.Database.Drop(ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordRepository := repository.NewTimeRecordRepository(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 
 	_time := time.Now().AddDate(0, 0, -1)
@@ -153,7 +153,7 @@ func TestService_FindAllByEmployeeID(t *testing.T) {
 	defer db.Close(ctx)
 	defer db.Database.Drop(ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(db)
+	timeRecordRepository := repository.NewTimeRecordRepository(db)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 
 	_time := time.Now()

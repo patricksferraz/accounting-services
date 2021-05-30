@@ -19,26 +19,20 @@ import (
 	"context"
 	"log"
 	"os"
-	"path/filepath"
-	"runtime"
 
 	"github.com/c4ut/accounting-services/service/common/pb"
 	"github.com/c4ut/accounting-services/service/time-record/application/grpc"
+	"github.com/c4ut/accounting-services/service/time-record/application/rest"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/external"
 	"github.com/c4ut/accounting-services/utils"
-	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
-var grpcPort int
-var uri string
-var dbName string
-
-// grpcCmd represents the grpc command
-var grpcCmd = &cobra.Command{
-	Use:   "grpc",
-	Short: "Run gRPC Service",
+// allCmd represents the all command
+var allCmd = &cobra.Command{
+	Use:   "all",
+	Short: "Run both gRPC and rest servers",
 
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
@@ -70,36 +64,23 @@ var grpcCmd = &cobra.Command{
 		defer conn.Close()
 		authdb := pb.NewAuthServiceClient(conn)
 
+		go rest.StartRestServer(database, authdb, restPort)
 		grpc.StartGrpcServer(database, authdb, grpcPort)
 	},
 }
 
 func init() {
-	_, b, _, _ := runtime.Caller(0)
-	basepath := filepath.Dir(b)
-
-	if os.Getenv("ENV") == "dev" {
-		err := godotenv.Load(basepath + "/../../../.env")
-		if err != nil {
-			log.Printf("Error loading .env files")
-		}
-	}
-
-	dUri := utils.GetEnv("DB_URI", "mongodb://localhost")
-	dDbName := utils.GetEnv("DB_NAME", "time_record_service")
-
-	rootCmd.AddCommand(grpcCmd)
-	grpcCmd.Flags().IntVarP(&grpcPort, "port", "p", 50051, "gRPC Server port")
-	grpcCmd.Flags().StringVarP(&uri, "uri", "u", dUri, "gRPC Server port")
-	grpcCmd.Flags().StringVarP(&dbName, "dbName", "", dDbName, "gRPC Server port")
+	rootCmd.AddCommand(allCmd)
+	allCmd.Flags().IntVarP(&grpcPort, "grpcPort", "g", 50051, "gRPC Server port")
+	allCmd.Flags().IntVarP(&restPort, "restPort", "r", 8080, "rest server port")
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// grpcCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// allCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// grpcCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// allCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

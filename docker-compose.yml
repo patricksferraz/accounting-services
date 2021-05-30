@@ -75,7 +75,8 @@ services:
       ENV: dev
       ELASTIC_APM_SERVICE_NAME: 'time-record'
     ports:
-      - $TIME_RECORD_API_PORT:50051
+      - $TIME_RECORD_GRPC_PORT:50051
+      - $TIME_RECORD_REST_PORT:8080
     volumes:
       - .:/go/src/
     depends_on:
