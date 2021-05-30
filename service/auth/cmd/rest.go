@@ -21,22 +21,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var restPort int
+// NewRestCmd represents the rest command
+func NewRestCmd() *cobra.Command {
+	var restPort int
 
-// restCmd represents the rest command
-var restCmd = &cobra.Command{
-	Use:   "rest",
-	Short: "Run rest Service",
+	restCmd := &cobra.Command{
+		Use:   "rest",
+		Short: "Run rest Service",
 
-	Run: func(cmd *cobra.Command, args []string) {
-		service := external.ConnectKeycloak()
-		rest.StartRestServer(service, restPort)
-	},
+		Run: func(cmd *cobra.Command, args []string) {
+			service := external.ConnectKeycloak()
+			rest.StartRestServer(service, restPort)
+		},
+	}
+
+	restCmd.Flags().IntVarP(&restPort, "port", "p", 8080, "rest server port")
+
+	return restCmd
 }
 
 func init() {
-	rootCmd.AddCommand(restCmd)
-	restCmd.Flags().IntVarP(&restPort, "port", "p", 8080, "rest server port")
+	rootCmd.AddCommand(NewRestCmd())
 
 	// Here you will define your flags and configuration settings.
 

@@ -4,8 +4,10 @@ import (
 	http "net/http"
 
 	"github.com/c4ut/accounting-services/service/auth/domain/service"
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/gin-gonic/gin"
 	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 )
 
 type AuthRestService struct {
@@ -25,18 +27,25 @@ type AuthRestService struct {
 // @Router /login [post]
 func (a *AuthRestService) Login(ctx *gin.Context) {
 	var json Auth
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindJSON(&json); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.WithField("auth", json).Info("handling Auth request")
 
 	jwt, err := a.AuthService.Login(ctx, json.Username, json.Password)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+	log.WithField("jwt", jwt).Info("JWT response")
 
 	ctx.JSON(http.StatusOK, jwt)
 }
@@ -54,18 +63,25 @@ func (a *AuthRestService) Login(ctx *gin.Context) {
 // @Router /refreshToken [post]
 func (a *AuthRestService) RefreshToken(ctx *gin.Context) {
 	var json RefreshToken
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindJSON(&json); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.WithField("refreshToken", json).Info("handling RefreshToken request")
 
 	jwt, err := a.AuthService.RefreshToken(ctx, json.RefreshToken)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.WithField("jwt", jwt).Info("JWT response")
 
 	ctx.JSON(http.StatusOK, jwt)
 }
@@ -84,18 +100,25 @@ func (a *AuthRestService) RefreshToken(ctx *gin.Context) {
 // @Router /employeeClaims [post]
 func (a *AuthRestService) FindEmployeeClaimsByToken(ctx *gin.Context) {
 	var json AccessToken
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindJSON(&json); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.WithField("accessToken", json).Info("handling AccessToken request")
 
 	employee, err := a.AuthService.FindEmployeeClaimsByToken(ctx, json.AccessToken)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	log.WithField("employeeClaims", employee).Info("employeeClaims response")
 
 	ctx.JSON(http.StatusOK, employee)
 }

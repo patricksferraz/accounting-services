@@ -16,6 +16,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/satori/go.uuid v1.2.0
+	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
@@ -26,6 +27,7 @@ require (
 	go.elastic.co/apm v1.12.0
 	go.elastic.co/apm/module/apmgin v1.12.0
 	go.elastic.co/apm/module/apmgrpc v1.11.0
+	go.elastic.co/apm/module/apmlogrus v1.12.0
 	go.elastic.co/apm/module/apmmongo v1.11.0
 	go.mongodb.org/mongo-driver v1.5.2
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect

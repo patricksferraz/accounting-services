@@ -21,22 +21,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var grpcPort int
+// NewGrpcCmd represents the grpc command
+func NewGrpcCmd() *cobra.Command {
+	var grpcPort int
 
-// grpcCmd represents the grpc command
-var grpcCmd = &cobra.Command{
-	Use:   "grpc",
-	Short: "Run gRPC Service",
+	grpcCmd := &cobra.Command{
+		Use:   "grpc",
+		Short: "Run gRPC Service",
 
-	Run: func(cmd *cobra.Command, args []string) {
-		service := external.ConnectKeycloak()
-		grpc.StartGrpcServer(service, grpcPort)
-	},
+		Run: func(cmd *cobra.Command, args []string) {
+			service := external.ConnectKeycloak()
+			grpc.StartGrpcServer(service, grpcPort)
+		},
+	}
+
+	grpcCmd.Flags().IntVarP(&grpcPort, "port", "p", 50051, "gRPC Server port")
+
+	return grpcCmd
 }
 
 func init() {
-	rootCmd.AddCommand(grpcCmd)
-	grpcCmd.Flags().IntVarP(&grpcPort, "port", "p", 50051, "gRPC Server port")
+	rootCmd.AddCommand(NewGrpcCmd())
 
 	// Here you will define your flags and configuration settings.
 
