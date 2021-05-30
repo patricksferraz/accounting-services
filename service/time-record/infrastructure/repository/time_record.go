@@ -12,11 +12,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type TimeRecordRepositoryDb struct {
+type TimeRecordRepository struct {
 	M *db.Mongo
 }
 
-func (t *TimeRecordRepositoryDb) Register(ctx context.Context, timeRecord *model.TimeRecord) error {
+func (t *TimeRecordRepository) Register(ctx context.Context, timeRecord *model.TimeRecord) error {
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 	_, err := collection.InsertOne(ctx, timeRecord)
 	if err != nil {
@@ -26,7 +26,7 @@ func (t *TimeRecordRepositoryDb) Register(ctx context.Context, timeRecord *model
 	return nil
 }
 
-func (t *TimeRecordRepositoryDb) Save(ctx context.Context, timeRecord *model.TimeRecord) error {
+func (t *TimeRecordRepository) Save(ctx context.Context, timeRecord *model.TimeRecord) error {
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 	_, err := collection.ReplaceOne(ctx, bson.M{"_id": timeRecord.ID}, timeRecord)
 	if err != nil {
@@ -36,7 +36,7 @@ func (t *TimeRecordRepositoryDb) Save(ctx context.Context, timeRecord *model.Tim
 	return nil
 }
 
-func (t *TimeRecordRepositoryDb) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
+func (t *TimeRecordRepository) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
 	var timeRecord *model.TimeRecord
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&timeRecord)
@@ -47,7 +47,7 @@ func (t *TimeRecordRepositoryDb) Find(ctx context.Context, id string) (*model.Ti
 	return timeRecord, nil
 }
 
-func (t *TimeRecordRepositoryDb) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
+func (t *TimeRecordRepository) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
 	var timeRecords []*model.TimeRecord
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 
@@ -90,8 +90,8 @@ func (t *TimeRecordRepositoryDb) FindAllByEmployeeID(ctx context.Context, employ
 	return timeRecords, nil
 }
 
-func NewTimeRecordRepositoryDb(database *db.Mongo) *TimeRecordRepositoryDb {
-	return &TimeRecordRepositoryDb{
+func NewTimeRecordRepository(database *db.Mongo) *TimeRecordRepository {
+	return &TimeRecordRepository{
 		M: database,
 	}
 }

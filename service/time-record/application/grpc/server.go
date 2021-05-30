@@ -20,7 +20,7 @@ func StartGrpcServer(database *db.Mongo, _service pb.AuthServiceClient, port int
 
 	authService := service.NewAuthService(_service)
 	interceptor := NewAuthInterceptor(authService)
-	timeRecordRepository := repository.NewTimeRecordRepositoryDb(database)
+	timeRecordRepository := repository.NewTimeRecordRepository(database)
 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
 	timeRecordGrpcService := NewTimeRecordGrpcService(timeRecordService, interceptor)
 

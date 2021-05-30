@@ -31,45 +31,58 @@ import (
 	migrate "github.com/xakep666/mongo-migrate"
 )
 
-var n int
+// NewMigrateCmd represents the migrate command
+func NewMigrateCmd() *cobra.Command {
+	var n int
+	var uri string
+	var dbName string
 
-// migrateCmd represents the migrate command
-var migrateCmd = &cobra.Command{
-	Use:   "migrate [up|down]",
-	Short: "A brief description of your command",
-	Args: func(cmd *cobra.Command, args []string) error {
+	migrateCmd := &cobra.Command{
+		Use:   "migrate [up|down]",
+		Short: "A brief description of your command",
+		Args: func(cmd *cobra.Command, args []string) error {
 
-		if len(args) < 1 {
-			return errors.New("requires up or down argument")
-		}
-		return nil
+			if len(args) < 1 {
+				return errors.New("requires up or down argument")
+			}
+			return nil
 
-	},
-	Run: func(cmd *cobra.Command, args []string) {
+		},
+		Run: func(cmd *cobra.Command, args []string) {
 
-		ctx := context.Background()
-		db, err := db.NewMongo(ctx, uri, dbName)
-		if err != nil {
-			log.Fatal(err)
-		}
-		migrate.SetDatabase(db.Database)
-
-		switch args[0] {
-		case "up":
-			err = migrate.Up(n)
+			ctx := context.Background()
+			db, err := db.NewMongo(ctx, uri, dbName)
 			if err != nil {
 				log.Fatal(err)
 			}
-		case "down":
-			err = migrate.Down(n)
-			if err != nil {
-				log.Fatal(err)
-			}
-		default:
-			log.Fatal("requires up or down argument")
-		}
+			migrate.SetDatabase(db.Database)
 
-	},
+			switch args[0] {
+			case "up":
+				err = migrate.Up(n)
+				if err != nil {
+					log.Fatal(err)
+				}
+			case "down":
+				err = migrate.Down(n)
+				if err != nil {
+					log.Fatal(err)
+				}
+			default:
+				log.Fatal("requires up or down argument")
+			}
+
+		},
+	}
+
+	dUri := utils.GetEnv("DB_URI", "mongodb://localhost")
+	dDbName := utils.GetEnv("DB_NAME", "time_record_service")
+
+	migrateCmd.Flags().IntVarP(&n, "n", "n", migrate.AllAvailable, "amount of migrations to UP or DOWN")
+	migrateCmd.Flags().StringVarP(&uri, "uri", "u", dUri, "db uri")
+	migrateCmd.Flags().StringVarP(&dbName, "dbName", "", dDbName, "db name")
+
+	return migrateCmd
 }
 
 func init() {
@@ -83,13 +96,7 @@ func init() {
 		}
 	}
 
-	dUri := utils.GetEnv("DB_URI", "mongodb://localhost")
-	dDbName := utils.GetEnv("DB_NAME", "time_record_service")
-
-	rootCmd.AddCommand(migrateCmd)
-	migrateCmd.Flags().IntVarP(&n, "n", "n", migrate.AllAvailable, "amount of migrations to UP or DOWN")
-	migrateCmd.Flags().StringVarP(&uri, "uri", "u", dUri, "gRPC Server port")
-	migrateCmd.Flags().StringVarP(&dbName, "dbName", "", dDbName, "gRPC Server port")
+	rootCmd.AddCommand(NewMigrateCmd())
 
 	// Here you will define your flags and configuration settings.
 

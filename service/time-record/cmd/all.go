@@ -19,27 +19,26 @@ import (
 	"context"
 	"log"
 	"os"
-	"path/filepath"
-	"runtime"
 
 	"github.com/c4ut/accounting-services/service/common/pb"
 	"github.com/c4ut/accounting-services/service/time-record/application/grpc"
+	"github.com/c4ut/accounting-services/service/time-record/application/rest"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/external"
 	"github.com/c4ut/accounting-services/utils"
-	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
-// NewGrpcCmd represents the grpc command
-func NewGrpcCmd() *cobra.Command {
+// NewAllCmd represents the all command
+func NewAllCmd() *cobra.Command {
 	var grpcPort int
+	var restPort int
 	var uri string
 	var dbName string
 
-	grpcCmd := &cobra.Command{
-		Use:   "grpc",
-		Short: "Run gRPC Service",
+	allCmd := &cobra.Command{
+		Use:   "all",
+		Short: "Run both gRPC and rest servers",
 
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.Background()
@@ -71,6 +70,7 @@ func NewGrpcCmd() *cobra.Command {
 			defer conn.Close()
 			authdb := pb.NewAuthServiceClient(conn)
 
+			go rest.StartRestServer(database, authdb, restPort)
 			grpc.StartGrpcServer(database, authdb, grpcPort)
 		},
 	}
@@ -78,33 +78,24 @@ func NewGrpcCmd() *cobra.Command {
 	dUri := utils.GetEnv("DB_URI", "mongodb://localhost")
 	dDbName := utils.GetEnv("DB_NAME", "time_record_service")
 
-	grpcCmd.Flags().IntVarP(&grpcPort, "port", "p", 50051, "gRPC Server port")
-	grpcCmd.Flags().StringVarP(&uri, "uri", "u", dUri, "db uri")
-	grpcCmd.Flags().StringVarP(&dbName, "dbName", "", dDbName, "db name")
+	allCmd.Flags().IntVarP(&grpcPort, "grpcPort", "g", 50051, "gRPC Server port")
+	allCmd.Flags().IntVarP(&restPort, "restPort", "r", 8080, "rest server port")
+	allCmd.Flags().StringVarP(&uri, "uri", "u", dUri, "db uri")
+	allCmd.Flags().StringVarP(&dbName, "dbName", "", dDbName, "db name")
 
-	return grpcCmd
+	return allCmd
 }
 
 func init() {
-	_, b, _, _ := runtime.Caller(0)
-	basepath := filepath.Dir(b)
-
-	if os.Getenv("ENV") == "dev" {
-		err := godotenv.Load(basepath + "/../../../.env")
-		if err != nil {
-			log.Printf("Error loading .env files")
-		}
-	}
-
 	rootCmd.AddCommand(NewAllCmd())
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// grpcCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// allCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// grpcCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// allCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
