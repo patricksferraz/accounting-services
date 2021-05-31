@@ -22,22 +22,30 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// allCmd represents the all command
-var allCmd = &cobra.Command{
-	Use:   "all",
-	Short: "Run both gRPC and rest servers",
+// NewAllCmd represents the all command
+func NewAllCmd() *cobra.Command {
+	var grpcPort int
+	var restPort int
 
-	Run: func(cmd *cobra.Command, args []string) {
-		service := external.ConnectKeycloak()
-		go rest.StartRestServer(service, restPort)
-		grpc.StartGrpcServer(service, grpcPort)
-	},
+	allCmd := &cobra.Command{
+		Use:   "all",
+		Short: "Run both gRPC and rest servers",
+
+		Run: func(cmd *cobra.Command, args []string) {
+			service := external.ConnectKeycloak()
+			go rest.StartRestServer(service, restPort)
+			grpc.StartGrpcServer(service, grpcPort)
+		},
+	}
+
+	allCmd.Flags().IntVarP(&grpcPort, "grpcPort", "g", 50051, "gRPC Server port")
+	allCmd.Flags().IntVarP(&restPort, "restPort", "r", 8080, "rest server port")
+
+	return allCmd
 }
 
 func init() {
-	rootCmd.AddCommand(allCmd)
-	allCmd.Flags().IntVarP(&grpcPort, "grpcPort", "g", 50051, "gRPC Server port")
-	allCmd.Flags().IntVarP(&restPort, "restPort", "r", 8080, "rest server port")
+	rootCmd.AddCommand(NewAllCmd())
 
 	// Here you will define your flags and configuration settings.
 

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/c4ut/accounting-services/service/time-record/domain/model"
 	"github.com/c4ut/accounting-services/service/time-record/domain/service"
 	"github.com/gin-gonic/gin"
 	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 )
 
 type AuthMiddleware struct {
@@ -18,14 +20,18 @@ type AuthMiddleware struct {
 
 func (a *AuthMiddleware) Require() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 		accessToken := ctx.Request.Header.Get("Authorization")
 		if accessToken == "" {
 			err := errors.New("authorization token is not provided")
+			log.WithError(err)
 			apm.CaptureError(ctx, err).Send()
 			ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 			ctx.Abort()
 			return
 		}
+		log.WithField("accessToken", accessToken).Info("handling accessToken request")
 
 		claims, err := a.AuthService.Verify(ctx, accessToken)
 		if err != nil {
@@ -34,6 +40,7 @@ func (a *AuthMiddleware) Require() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
+		log.WithField("claims", claims).Info("verify accessToken")
 
 		a.EmployeeClaims = claims
 
