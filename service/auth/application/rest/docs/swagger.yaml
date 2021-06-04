@@ -69,7 +69,7 @@ info:
   title: Auth Swagger API
   version: "1.0"
 paths:
-  /employeeClaims:
+  /auth/employeeClaims:
     post:
       consumes:
       - application/json
@@ -100,7 +100,7 @@ paths:
       summary: get employee claims
       tags:
       - Auth
-  /login:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -127,7 +127,7 @@ paths:
       summary: log in
       tags:
       - Auth
-  /refreshToken:
+  /auth/refreshToken:
     post:
       consumes:
       - application/json

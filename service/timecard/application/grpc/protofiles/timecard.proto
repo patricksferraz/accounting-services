@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package github.com.patricksferraz.checkpoint;
+
+option go_package = "/protofiles;pb";
+
+message TimecardRegister {
+    string date = 1;
+    string companyId = 2;
+    string employeeId = 3;
+}
+
+message TimeRecordRegister {
+    string time = 1;
+    string timecardId = 2;
+}
+
+message ResultInfo {
+    string id = 1;
+    string status = 2;
+    string error = 3;
+}
+
+message Timecard {
+    string id = 1;
+}
+
+message TimecardByCompanyID {
+    string companyId = 1;
+}
+
+message TimecardByEmployeeID {
+    string employeeId = 1;
+}
+
+message TimeRecordInfo {
+    string id = 1;
+    string time = 2;
+    string timecardId = 3;
+    string createdAt = 4;
+    string updatedAt = 5;
+}
+
+message TimecardInfo {
+    string id = 1;
+    string date = 2;
+    string companyId = 3;
+    string employeeId = 4;
+    repeated TimeRecordInfo timeRecords = 5;
+    string createdAt = 6;
+    string updatedAt = 7;
+}
+
+service TimecardService {
+    rpc RegisterTimecard (TimecardRegister) returns (ResultInfo);
+    rpc RegisterTimeRecord (TimeRecordRegister) returns (ResultInfo);
+    rpc WaitConfirmationTimecard (Timecard) returns (ResultInfo);
+    rpc ConfirmTimecard (Timecard) returns (ResultInfo);
+    rpc FindTimecard (Timecard) returns (TimecardInfo);
+    rpc FindAllTimecardByCompanyID (TimecardByCompanyID) returns (stream TimecardInfo);
+    rpc FindAllTimecardByEmployeeID (TimecardByEmployeeID) returns (stream TimecardInfo);
+}

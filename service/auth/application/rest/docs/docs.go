@@ -28,7 +28,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/employeeClaims": {
+        "/auth/employeeClaims": {
             "post": {
                 "description": "Get Employee Claims by access token",
                 "consumes": [
@@ -75,7 +75,7 @@ var doc = `{
                 }
             }
         },
-        "/login": {
+        "/auth/login": {
             "post": {
                 "description": "System authentication",
                 "consumes": [
@@ -116,7 +116,7 @@ var doc = `{
                 }
             }
         },
-        "/refreshToken": {
+        "/auth/refreshToken": {
             "post": {
                 "description": "Refresh token route",
                 "consumes": [
