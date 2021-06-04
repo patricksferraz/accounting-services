@@ -1,24 +1,5 @@
 package grpc_test
 
-import (
-	"context"
-	"log"
-	"testing"
-	"time"
-
-	"github.com/c4ut/accounting-services/service/common/pb"
-	"github.com/c4ut/accounting-services/service/time-record/application/grpc"
-	"github.com/c4ut/accounting-services/service/time-record/domain/model"
-	"github.com/c4ut/accounting-services/service/time-record/domain/service"
-	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
-	"github.com/c4ut/accounting-services/service/time-record/infrastructure/repository"
-	"github.com/c4ut/accounting-services/utils"
-	uuid "github.com/satori/go.uuid"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/types/known/timestamppb"
-	"syreclabs.com/go/faker"
-)
-
 // type mockTimeRecordService_ListTimeRecordsServer struct {
 // 	gogrpc.ServerStream
 // 	Results []*pb.TimeRecord
@@ -29,131 +10,131 @@ import (
 // 	return nil
 // }
 
-func TestGrpc_Register(t *testing.T) {
+// func TestGrpc_Register(t *testing.T) {
 
-	interceptor := &grpc.AuthInterceptor{
-		EmployeeClaims: &model.EmployeeClaims{
-			ID: uuid.NewV4().String(),
-		},
-	}
+// 	interceptor := &grpc.AuthInterceptor{
+// 		EmployeeClaims: &model.EmployeeClaims{
+// 			ID: uuid.NewV4().String(),
+// 		},
+// 	}
 
-	ctx := new(context.Context)
-	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
-	dbName := utils.GetEnv("DB_NAME", "test")
-	db, err := db.NewMongo(*ctx, uri, dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close(*ctx)
-	defer db.Database.Drop(*ctx)
+// 	ctx := new(context.Context)
+// 	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+// 	dbName := utils.GetEnv("DB_NAME", "test")
+// 	db, err := db.NewMongo(*ctx, uri, dbName)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer db.Close(*ctx)
+// 	defer db.Database.Drop(*ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepository(db)
-	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
-	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
+// 	timeRecordRepository := repository.NewTimeRecordRepository(db)
+// 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
+// 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
-	reqRegister := &pb.RegisterTimeRecordRequest{
-		Time:        timestamppb.Now(),
-		Description: faker.Lorem().Sentence(10),
-	}
+// 	reqRegister := &pb.RegisterTimeRecordRequest{
+// 		Time:        timestamppb.Now(),
+// 		Description: faker.Lorem().Sentence(10),
+// 	}
 
-	tr, err := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
-	require.NotEmpty(t, uuid.FromStringOrNil(tr.Id))
-	require.NotEmpty(t, uuid.FromStringOrNil(tr.EmployeeId))
-	require.Equal(t, tr.Time, reqRegister.Time)
-	require.Equal(t, tr.Description, reqRegister.Description)
-	require.NotEmpty(t, tr.RegularTime)
-	require.NotEmpty(t, tr.Status)
-	require.Nil(t, err)
+// 	tr, err := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
+// 	require.NotEmpty(t, uuid.FromStringOrNil(tr.Id))
+// 	require.NotEmpty(t, uuid.FromStringOrNil(tr.EmployeeId))
+// 	require.Equal(t, tr.Time, reqRegister.Time)
+// 	require.Equal(t, tr.Description, reqRegister.Description)
+// 	require.NotEmpty(t, tr.RegularTime)
+// 	require.NotEmpty(t, tr.Status)
+// 	require.Nil(t, err)
 
-	interceptor.EmployeeClaims.ID = ""
-	_, err = timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
-	require.NotNil(t, err)
-}
+// 	interceptor.EmployeeClaims.ID = ""
+// 	_, err = timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
+// 	require.NotNil(t, err)
+// }
 
-func TestGrpc_Approve(t *testing.T) {
+// func TestGrpc_Approve(t *testing.T) {
 
-	interceptor := &grpc.AuthInterceptor{
-		EmployeeClaims: &model.EmployeeClaims{
-			ID: uuid.NewV4().String(),
-		},
-	}
+// 	interceptor := &grpc.AuthInterceptor{
+// 		EmployeeClaims: &model.EmployeeClaims{
+// 			ID: uuid.NewV4().String(),
+// 		},
+// 	}
 
-	ctx := new(context.Context)
-	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
-	dbName := utils.GetEnv("DB_NAME", "test")
-	db, err := db.NewMongo(*ctx, uri, dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close(*ctx)
-	defer db.Database.Drop(*ctx)
+// 	ctx := new(context.Context)
+// 	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+// 	dbName := utils.GetEnv("DB_NAME", "test")
+// 	db, err := db.NewMongo(*ctx, uri, dbName)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer db.Close(*ctx)
+// 	defer db.Database.Drop(*ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepository(db)
-	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
-	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
+// 	timeRecordRepository := repository.NewTimeRecordRepository(db)
+// 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
+// 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
-	reqRegister := &pb.RegisterTimeRecordRequest{
-		Time:        timestamppb.New(time.Now().AddDate(0, 0, -1)),
-		Description: faker.Lorem().Sentence(10),
-	}
-	tr, _ := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
+// 	reqRegister := &pb.RegisterTimeRecordRequest{
+// 		Time:        timestamppb.New(time.Now().AddDate(0, 0, -1)),
+// 		Description: faker.Lorem().Sentence(10),
+// 	}
+// 	tr, _ := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
 
-	reqApprove := &pb.ApproveTimeRecordRequest{Id: tr.Id}
-	_, err = timeRecordGrpcService.ApproveTimeRecord(*ctx, reqApprove)
-	require.NotNil(t, err)
+// 	reqApprove := &pb.ApproveTimeRecordRequest{Id: tr.Id}
+// 	_, err = timeRecordGrpcService.ApproveTimeRecord(*ctx, reqApprove)
+// 	require.NotNil(t, err)
 
-	interceptor.EmployeeClaims.ID = uuid.NewV4().String()
-	resApprove, err := timeRecordGrpcService.ApproveTimeRecord(*ctx, reqApprove)
-	require.NotEmpty(t, resApprove.Status)
-	require.Nil(t, err)
-}
+// 	interceptor.EmployeeClaims.ID = uuid.NewV4().String()
+// 	resApprove, err := timeRecordGrpcService.ApproveTimeRecord(*ctx, reqApprove)
+// 	require.NotEmpty(t, resApprove.Status)
+// 	require.Nil(t, err)
+// }
 
-func TestGrpc_Find(t *testing.T) {
+// func TestGrpc_Find(t *testing.T) {
 
-	interceptor := &grpc.AuthInterceptor{
-		EmployeeClaims: &model.EmployeeClaims{
-			ID: uuid.NewV4().String(),
-		},
-	}
+// 	interceptor := &grpc.AuthInterceptor{
+// 		EmployeeClaims: &model.EmployeeClaims{
+// 			ID: uuid.NewV4().String(),
+// 		},
+// 	}
 
-	ctx := new(context.Context)
-	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
-	dbName := utils.GetEnv("DB_NAME", "test")
-	db, err := db.NewMongo(*ctx, uri, dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close(*ctx)
-	defer db.Database.Drop(*ctx)
+// 	ctx := new(context.Context)
+// 	uri := utils.GetEnv("DB_URI", "mongodb://localhost")
+// 	dbName := utils.GetEnv("DB_NAME", "test")
+// 	db, err := db.NewMongo(*ctx, uri, dbName)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer db.Close(*ctx)
+// 	defer db.Database.Drop(*ctx)
 
-	timeRecordRepository := repository.NewTimeRecordRepository(db)
-	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
-	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
+// 	timeRecordRepository := repository.NewTimeRecordRepository(db)
+// 	timeRecordService := service.NewTimeRecordService(timeRecordRepository)
+// 	timeRecordGrpcService := grpc.NewTimeRecordGrpcService(timeRecordService, interceptor)
 
-	reqRegister := &pb.RegisterTimeRecordRequest{
-		Time:        timestamppb.Now(),
-		Description: faker.Lorem().Sentence(10),
-	}
-	tr, _ := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
+// 	reqRegister := &pb.RegisterTimeRecordRequest{
+// 		Time:        timestamppb.Now(),
+// 		Description: faker.Lorem().Sentence(10),
+// 	}
+// 	tr, _ := timeRecordGrpcService.RegisterTimeRecord(*ctx, reqRegister)
 
-	findRequest := &pb.FindTimeRecordRequest{
-		Id: tr.Id,
-	}
+// 	findRequest := &pb.FindTimeRecordRequest{
+// 		Id: tr.Id,
+// 	}
 
-	resFind, err := timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
-	require.Equal(t, tr.Id, resFind.Id)
-	require.Equal(t, tr.EmployeeId, resFind.EmployeeId)
-	require.Equal(t, tr.Time.Seconds, resFind.Time.Seconds)
-	require.Equal(t, tr.Description, resFind.Description)
-	require.Equal(t, tr.RegularTime, resFind.RegularTime)
-	require.Equal(t, tr.Status, resFind.Status)
-	require.Equal(t, tr.ApprovedBy, resFind.ApprovedBy)
-	require.Nil(t, err)
+// 	resFind, err := timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
+// 	require.Equal(t, tr.Id, resFind.Id)
+// 	require.Equal(t, tr.EmployeeId, resFind.EmployeeId)
+// 	require.Equal(t, tr.Time.Seconds, resFind.Time.Seconds)
+// 	require.Equal(t, tr.Description, resFind.Description)
+// 	require.Equal(t, tr.RegularTime, resFind.RegularTime)
+// 	require.Equal(t, tr.Status, resFind.Status)
+// 	require.Equal(t, tr.ApprovedBy, resFind.ApprovedBy)
+// 	require.Nil(t, err)
 
-	findRequest.Id = ""
-	_, err = timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
-	require.NotNil(t, err)
-}
+// 	findRequest.Id = ""
+// 	_, err = timeRecordGrpcService.FindTimeRecord(*ctx, findRequest)
+// 	require.NotNil(t, err)
+// }
 
 // FIXME: runtime error in Mock context
 // func TestGrpc_FindAllByEmployeeID(t *testing.T) {

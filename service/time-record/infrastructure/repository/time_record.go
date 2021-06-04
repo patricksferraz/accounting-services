@@ -4,9 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/c4ut/accounting-services/service/time-record/domain/model"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
 	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db/collection"
+	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,25 +19,66 @@ type TimeRecordRepository struct {
 }
 
 func (t *TimeRecordRepository) Register(ctx context.Context, timeRecord *model.TimeRecord) error {
+	span, ctx := apm.StartSpan(ctx, "Register", "repository")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
-	_, err := collection.InsertOne(ctx, timeRecord)
-	return err
+	res, err := collection.InsertOne(ctx, timeRecord)
+	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
+		return err
+	}
+	log.WithField("result", res).Info("InsertOne database result")
+
+	return nil
 }
 
 func (t *TimeRecordRepository) Save(ctx context.Context, timeRecord *model.TimeRecord) error {
+	span, ctx := apm.StartSpan(ctx, "Save", "repository")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
-	_, err := collection.ReplaceOne(ctx, bson.M{"_id": timeRecord.ID}, timeRecord)
-	return err
+	res, err := collection.ReplaceOne(ctx, bson.M{"_id": timeRecord.ID}, timeRecord)
+	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
+		return err
+	}
+	log.WithField("result", res).Info("ReplaceOne database result")
+
+	return nil
 }
 
 func (t *TimeRecordRepository) Find(ctx context.Context, id string) (*model.TimeRecord, error) {
+	span, ctx := apm.StartSpan(ctx, "Find", "repository")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	var timeRecord *model.TimeRecord
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&timeRecord)
+	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
+		return nil, err
+	}
+	log.WithField("timeRecord", timeRecord).Info("timeRecord finded")
+
 	return timeRecord, err
 }
 
 func (t *TimeRecordRepository) FindAllByEmployeeID(ctx context.Context, employeeID string, fromDate, toDate time.Time) ([]*model.TimeRecord, error) {
+	span, ctx := apm.StartSpan(ctx, "FindAllByEmployeeID", "repository")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	var timeRecords []*model.TimeRecord
 	collection := t.M.Database.Collection(collection.TimeRecordCollection)
 
@@ -51,8 +95,11 @@ func (t *TimeRecordRepository) FindAllByEmployeeID(ctx context.Context, employee
 		},
 		findOpts,
 	)
+	log.WithField("findOpts", findOpts).Info("database findOpts")
 
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
 
@@ -60,12 +107,17 @@ func (t *TimeRecordRepository) FindAllByEmployeeID(ctx context.Context, employee
 		var timeRecord *model.TimeRecord
 		err := cur.Decode(&timeRecord)
 		if err != nil {
+			log.WithError(err)
+			apm.CaptureError(ctx, err).Send()
 			return nil, err
 		}
 		timeRecords = append(timeRecords, timeRecord)
 	}
+	log.WithField("timeRecords", timeRecords).Info("timeRecords finded")
 
 	if err := cur.Err(); err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
 

@@ -2,10 +2,12 @@ package grpc
 
 import (
 	"context"
-	"log"
 
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/c4ut/accounting-services/service/time-record/domain/model"
 	"github.com/c4ut/accounting-services/service/time-record/domain/service"
+	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -19,10 +21,16 @@ type AuthInterceptor struct {
 
 func (a *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		log.Println("--> unary interceptor: ", info.FullMethod)
+		span, ctx := apm.StartSpan(ctx, "Unary", "gRPC interceptor")
+		defer span.End()
+
+		log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+		log.WithField("method", info.FullMethod).Info("unary interceptor")
 
 		err := a.authorize(ctx, info.FullMethod)
 		if err != nil {
+			log.WithError(err)
+			apm.CaptureError(ctx, err).Send()
 			return nil, err
 		}
 
@@ -32,10 +40,16 @@ func (a *AuthInterceptor) Unary() grpc.UnaryServerInterceptor {
 
 func (a *AuthInterceptor) Stream() grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		log.Println("--> stream interceptor: ", info.FullMethod)
+		span, ctx := apm.StartSpan(ss.Context(), "Stream", "gRPC interceptor")
+		defer span.End()
 
-		err := a.authorize(ss.Context(), info.FullMethod)
+		log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+		log.WithField("method", info.FullMethod).Info("stream interceptor")
+
+		err := a.authorize(ctx, info.FullMethod)
 		if err != nil {
+			log.WithError(err)
+			apm.CaptureError(ctx, err).Send()
 			return err
 		}
 
@@ -44,22 +58,38 @@ func (a *AuthInterceptor) Stream() grpc.StreamServerInterceptor {
 }
 
 func (a *AuthInterceptor) authorize(ctx context.Context, method string) error {
+	span, ctx := apm.StartSpan(ctx, "authorize", "gRPC interceptor")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+	log.WithField("method", method).Info("authorize params")
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return status.Error(codes.Unauthenticated, "metadata is not provided")
+		err := status.Error(codes.Unauthenticated, "metadata is not provided")
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
+		return err
 	}
+	log.WithField("metadata", md).Info("handling metadata request")
 
 	values := md["authorization"]
 	if len(values) == 0 {
-		return status.Error(codes.Unauthenticated, "authorization token is not provided")
+		err := status.Error(codes.Unauthenticated, "authorization token is not provided")
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
+		return err
 	}
 
 	accessToken := values[0]
 	claims, err := a.AuthService.Verify(ctx, accessToken)
 	if err != nil {
-		return status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
+		err := status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
+		return err
 	}
+	log.WithField("claims", claims).Info("verify accessToken")
 
 	a.EmployeeClaims = claims
 
@@ -69,7 +99,10 @@ func (a *AuthInterceptor) authorize(ctx context.Context, method string) error {
 		}
 	}
 
-	return status.Error(codes.PermissionDenied, "no permission to access this RPC")
+	err = status.Error(codes.PermissionDenied, "no permission to access this RPC")
+	log.WithError(err)
+	apm.CaptureError(ctx, err).Send()
+	return err
 }
 
 func NewAuthInterceptor(authService *service.AuthService) *AuthInterceptor {

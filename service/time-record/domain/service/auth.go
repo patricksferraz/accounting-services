@@ -3,8 +3,11 @@ package service
 import (
 	"context"
 
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/c4ut/accounting-services/service/common/pb"
 	"github.com/c4ut/accounting-services/service/time-record/domain/model"
+	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 )
 
 type AuthService struct {
@@ -12,19 +15,31 @@ type AuthService struct {
 }
 
 func (a *AuthService) Verify(ctx context.Context, accessToken string) (*model.EmployeeClaims, error) {
+	span, ctx := apm.StartSpan(ctx, "Verify", "auth domain service")
+	defer span.End()
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	req := &pb.FindEmployeeClaimsByTokenRequest{
 		AccessToken: accessToken,
 	}
+	log.WithField("req", req).Info("FindEmployeeClaimsByToken request")
 
 	employee, err := a.Service.FindEmployeeClaimsByToken(ctx, req)
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
+	log.WithField("employee", employee).Info("employee response")
 
 	employeeClaims, err := model.NewEmployeeClaims(employee.Id, employee.Roles)
 	if err != nil {
+		log.WithError(err)
+		apm.CaptureError(ctx, err).Send()
 		return nil, err
 	}
+	log.WithField("employeeClaims", employeeClaims).Info("employee created")
 
 	return employeeClaims, nil
 }

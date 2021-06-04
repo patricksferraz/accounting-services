@@ -3,9 +3,11 @@ package rest
 import (
 	"net/http"
 
+	"github.com/c4ut/accounting-services/service/common/logger"
 	"github.com/c4ut/accounting-services/service/time-record/domain/service"
 	"github.com/gin-gonic/gin"
 	"go.elastic.co/apm"
+	"go.elastic.co/apm/module/apmlogrus"
 )
 
 type TimeRecordRestService struct {
@@ -28,7 +30,11 @@ type TimeRecordRestService struct {
 // @Router /timeRecord [post]
 func (t *TimeRecordRestService) RegisterTimeRecord(ctx *gin.Context) {
 	var req TimeRecordRequest
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -39,9 +45,11 @@ func (t *TimeRecordRestService) RegisterTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("json", req).Info("handling TimeRecord request")
 
 	timeRecord, err := t.TimeRecordService.Register(ctx, req.Time, req.Description, t.AuthMiddleware.EmployeeClaims.ID)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusForbidden,
@@ -52,6 +60,7 @@ func (t *TimeRecordRestService) RegisterTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("timeRecord", timeRecord).Info("timeRecord registered")
 
 	ctx.JSON(http.StatusOK, timeRecord)
 }
@@ -71,7 +80,11 @@ func (t *TimeRecordRestService) RegisterTimeRecord(ctx *gin.Context) {
 // @Router /timeRecord/{id}/approve [post]
 func (t *TimeRecordRestService) ApproveTimeRecord(ctx *gin.Context) {
 	var req IDRequest
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindUri(&req); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -82,9 +95,11 @@ func (t *TimeRecordRestService) ApproveTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("uri", req).Info("uri id request")
 
 	timeRecord, err := t.TimeRecordService.Approve(ctx, req.ID, t.AuthMiddleware.EmployeeClaims.ID)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusForbidden,
@@ -95,6 +110,7 @@ func (t *TimeRecordRestService) ApproveTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("timeRecord", timeRecord).Info("timeRecord approved")
 
 	ctx.JSON(
 		http.StatusOK,
@@ -123,7 +139,10 @@ func (t *TimeRecordRestService) RefuseTimeRecord(ctx *gin.Context) {
 	var uri IDRequest
 	var body RefuseRequest
 
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindUri(&uri); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -134,8 +153,10 @@ func (t *TimeRecordRestService) RefuseTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("uri", uri).Info("uri id request")
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -146,9 +167,11 @@ func (t *TimeRecordRestService) RefuseTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("body", body).Info("handling Refuse request")
 
 	timeRecord, err := t.TimeRecordService.Refuse(ctx, uri.ID, body.RefusedReason, t.AuthMiddleware.EmployeeClaims.ID)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusForbidden,
@@ -159,6 +182,7 @@ func (t *TimeRecordRestService) RefuseTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("timeRecord", timeRecord).Info("timeRecord refused")
 
 	ctx.JSON(
 		http.StatusOK,
@@ -184,7 +208,11 @@ func (t *TimeRecordRestService) RefuseTimeRecord(ctx *gin.Context) {
 // @Router /timeRecord/{id} [get]
 func (t *TimeRecordRestService) FindTimeRecord(ctx *gin.Context) {
 	var req IDRequest
+
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindUri(&req); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -195,9 +223,11 @@ func (t *TimeRecordRestService) FindTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("uri", req).Info("uri id request")
 
 	timeRecord, err := t.TimeRecordService.Find(ctx, req.ID)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusForbidden,
@@ -208,6 +238,7 @@ func (t *TimeRecordRestService) FindTimeRecord(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("timeRecord", timeRecord).Info("timeRecord finded")
 
 	ctx.JSON(http.StatusOK, timeRecord)
 }
@@ -230,7 +261,10 @@ func (t *TimeRecordRestService) SearchTimeRecords(ctx *gin.Context) {
 	var uri IDRequest
 	var body TimeRecordsRequest
 
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindUri(&uri); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -241,8 +275,10 @@ func (t *TimeRecordRestService) SearchTimeRecords(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("uri", uri).Info("uri id request")
 
 	if err := ctx.ShouldBindQuery(&body); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -253,9 +289,11 @@ func (t *TimeRecordRestService) SearchTimeRecords(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("query", body).Info("query TimeRecords request")
 
 	timeRecords, err := t.TimeRecordService.FindAllByEmployeeID(ctx, uri.ID, body.FromDate, body.ToDate)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusForbidden,
@@ -266,6 +304,7 @@ func (t *TimeRecordRestService) SearchTimeRecords(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("timeRecords", timeRecords).Info("timeRecords searched")
 
 	ctx.JSON(http.StatusOK, timeRecords)
 }
@@ -286,7 +325,10 @@ func (t *TimeRecordRestService) SearchTimeRecords(ctx *gin.Context) {
 func (t *TimeRecordRestService) ListTimeRecords(ctx *gin.Context) {
 	var body TimeRecordsRequest
 
+	log := logger.Log.WithFields(apmlogrus.TraceContext(ctx))
+
 	if err := ctx.ShouldBindQuery(&body); err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -297,9 +339,11 @@ func (t *TimeRecordRestService) ListTimeRecords(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("query", body).Info("query TimeRecords request")
 
 	timeRecords, err := t.TimeRecordService.FindAllByEmployeeID(ctx, t.AuthMiddleware.EmployeeClaims.ID, body.FromDate, body.ToDate)
 	if err != nil {
+		log.WithError(err)
 		apm.CaptureError(ctx, err).Send()
 		ctx.JSON(
 			http.StatusForbidden,
@@ -310,6 +354,7 @@ func (t *TimeRecordRestService) ListTimeRecords(ctx *gin.Context) {
 		)
 		return
 	}
+	log.WithField("timeRecords", timeRecords).Info("timeRecords listed")
 
 	ctx.JSON(http.StatusOK, timeRecords)
 }
