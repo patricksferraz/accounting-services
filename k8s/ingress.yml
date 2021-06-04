@@ -2,8 +2,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: accounting-ingress
-  annotations:
-    ingress.kubernetes.io/rewrite-target: /
   labels:
       name: accounting-ingress
 spec:

@@ -35,10 +35,9 @@ func StartRestServer(service *external.Keycloak, port int) {
 	authService := _service.NewAuthService(authRepository)
 	authRestService := NewAuthRestService(authService)
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 	v1 := r.Group("api/v1/auth")
 	{
+		v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		v1.POST("/login", authRestService.Login)
 		v1.POST("/refreshToken", authRestService.RefreshToken)
 		v1.POST("/employeeClaims", authRestService.FindEmployeeClaimsByToken)
