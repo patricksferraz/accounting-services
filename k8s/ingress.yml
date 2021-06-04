@@ -2,6 +2,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: accounting-ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
   labels:
       name: accounting-ingress
 spec:
@@ -11,7 +13,7 @@ spec:
       paths:
 
       - pathType: Prefix
-        path: "/auth"
+        path: /api/v1/auth
         backend:
           service:
             name: auth-service
@@ -19,7 +21,7 @@ spec:
               number: 8080
 
       - pathType: Prefix
-        path: "/time-record"
+        path: /api/v1/timeRecord
         backend:
           service:
             name: time-record-service

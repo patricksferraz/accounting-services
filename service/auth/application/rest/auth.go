@@ -24,7 +24,7 @@ type AuthRestService struct {
 // @Param body body Auth true "JSON body for authentication"
 // @Success 200 {object} JWT
 // @Failure 401 {object} HTTPError
-// @Router /login [post]
+// @Router /auth/login [post]
 func (a *AuthRestService) Login(ctx *gin.Context) {
 	var json Auth
 
@@ -60,7 +60,7 @@ func (a *AuthRestService) Login(ctx *gin.Context) {
 // @Param body body RefreshToken true "JSON body for refresh token"
 // @Success 200 {object} JWT
 // @Failure 400 {object} HTTPError
-// @Router /refreshToken [post]
+// @Router /auth/refreshToken [post]
 func (a *AuthRestService) RefreshToken(ctx *gin.Context) {
 	var json RefreshToken
 
@@ -97,7 +97,7 @@ func (a *AuthRestService) RefreshToken(ctx *gin.Context) {
 // @Success 200 {object} EmployeeClaims
 // @Failure 400 {object} HTTPError
 // @Failure 500 {object} HTTPError
-// @Router /employeeClaims [post]
+// @Router /auth/employeeClaims [post]
 func (a *AuthRestService) FindEmployeeClaimsByToken(ctx *gin.Context) {
 	var json AccessToken
 
