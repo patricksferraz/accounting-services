@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/c4ut/accounting-services/service/auth/application/grpc"
-	"github.com/c4ut/accounting-services/service/auth/infrastructure/external"
+	"github.com/patricksferraz/accounting-services/service/auth/application/grpc"
+	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/external"
 	"github.com/spf13/cobra"
 )
 

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/c4ut/accounting-services/utils"
+	"github.com/patricksferraz/accounting-services/utils"
 	uuid "github.com/satori/go.uuid"
 )
 

@@ -3,7 +3,7 @@ package model_test
 import (
 	"testing"
 
-	"github.com/c4ut/accounting-services/service/auth/domain/model"
+	"github.com/patricksferraz/accounting-services/service/auth/domain/model"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/require"
 	"syreclabs.com/go/faker"

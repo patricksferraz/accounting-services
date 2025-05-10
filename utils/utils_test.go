@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/c4ut/accounting-services/utils"
+	"github.com/patricksferraz/accounting-services/utils"
 	"github.com/stretchr/testify/require"
 	"syreclabs.com/go/faker"
 )

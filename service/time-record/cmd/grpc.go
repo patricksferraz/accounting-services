@@ -22,11 +22,11 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/c4ut/accounting-services/service/common/pb"
-	"github.com/c4ut/accounting-services/service/time-record/application/grpc"
-	"github.com/c4ut/accounting-services/service/time-record/infrastructure/db"
-	"github.com/c4ut/accounting-services/service/time-record/infrastructure/external"
-	"github.com/c4ut/accounting-services/utils"
+	"github.com/patricksferraz/accounting-services/service/common/pb"
+	"github.com/patricksferraz/accounting-services/service/time-record/application/grpc"
+	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/db"
+	"github.com/patricksferraz/accounting-services/service/time-record/infrastructure/external"
+	"github.com/patricksferraz/accounting-services/utils"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )

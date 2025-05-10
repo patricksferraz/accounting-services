@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/c4ut/accounting-services/service/auth/domain/model"
-	"github.com/c4ut/accounting-services/service/auth/infrastructure/external"
+	"github.com/patricksferraz/accounting-services/service/auth/domain/model"
+	"github.com/patricksferraz/accounting-services/service/auth/infrastructure/external"
 	"github.com/mitchellh/mapstructure"
 )
 

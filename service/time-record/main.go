@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/c4ut/accounting-services/service/time-record/cmd"
+import "github.com/patricksferraz/accounting-services/service/time-record/cmd"
 
 func main() {
 	cmd.Execute()

@@ -1,4 +1,4 @@
-module github.com/c4ut/accounting-services
+module github.com/patricksferraz/accounting-services
 
 go 1.16
 

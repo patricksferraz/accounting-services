@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/c4ut/accounting-services/service/time-record/domain/model"
-	"github.com/c4ut/accounting-services/service/time-record/domain/repository"
+	"github.com/patricksferraz/accounting-services/service/time-record/domain/model"
+	"github.com/patricksferraz/accounting-services/service/time-record/domain/repository"
 )
 
 type TimeRecordService struct {

@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	authmodel "github.com/c4ut/accounting-services/service/auth/domain/model"
-	"github.com/c4ut/accounting-services/service/common/pb"
+	authmodel "github.com/patricksferraz/accounting-services/service/auth/domain/model"
+	"github.com/patricksferraz/accounting-services/service/common/pb"
 )
 
 type AuthService struct {

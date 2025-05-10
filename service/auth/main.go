@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/c4ut/accounting-services/service/auth/cmd"
+import "github.com/patricksferraz/accounting-services/service/auth/cmd"
 
 func main() {
 	cmd.Execute()
